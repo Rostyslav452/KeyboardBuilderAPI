@@ -1,0 +1,20 @@
+{
+    "name": "mechanical_keyboard_builder_api",
+    "version": "1.0.0",
+    "description": "Mechanical Keyboard Builder API",
+    "main": "server.js",
+    "type": "module",
+    "scripts": {
+        "test": "start"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/Rostyslav452/mysql_api.git"
+    },
+    "author": "Rostyslav <rooostik2016@gmail.com>",
+    "license": "ISC",
+    "bugs": {
+        "url": "https://github.com/Rostyslav452/mysql_api/issues"
+    },
+    "homepage": "https://github.com/Rostyslav452/mysql_api#readme"
+}
