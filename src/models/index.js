@@ -13,3 +13,5 @@ Build.belongsTo(User, {
     foreignKey: "username",
     targetKey: "username",
 });
+
+export { Build, User, Part, sequelize };
