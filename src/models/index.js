@@ -1,6 +1,6 @@
 import sequelize from "../config/db.js";
 import User from "./userModel.js";
-import Part from "./partsModel.js";
+import Part from "./partModel.js";
 import Build from "./buildModel.js";
 
 Build.belongsTo(Part, { as: "keyboardSwitch", foreignKey: "switchId" });

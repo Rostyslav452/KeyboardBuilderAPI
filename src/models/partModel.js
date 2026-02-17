@@ -6,19 +6,31 @@ class Part extends Model {}
 Part.init(
     {
         partId: {
-            type: DataTypes.INTEGER,
+            type: DataTypes.UUID,
             primaryKey: true,
-            autoIncrement: true,
+            defaultValue: DataTypes.UUIDV4,
         },
         name: {
-            type: DataTypes.STRING,
+            type: DataTypes.STRING(64),
             allowNull: false,
             unique: true,
+            validate: {
+                len: [3, 64],
+            },
         },
         type: {
             type: DataTypes.ENUM(["switch", "case", "pcb", "keycap"]),
             allowNull: false,
         },
+        price: {
+            type: DataTypes.DECIMAL(8, 2),
+            allowNull: false,
+            validate: {
+                min: 1,
+                max: 99999,
+            },
+        },
+
         specs: {
             type: DataTypes.JSON,
             allowNull: false,
@@ -32,6 +44,5 @@ Part.init(
         timestamps: false,
     },
 );
-
 
 export default Part;

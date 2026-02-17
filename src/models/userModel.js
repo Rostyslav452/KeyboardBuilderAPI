@@ -1,13 +1,22 @@
 import { DataTypes, Model } from "sequelize";
 import sequelize from "../config/db.js";
+import bcrypt from "bcryptjs";
 
-class User extends Model {}
+class User extends Model {
+    comparePassword(candidatePassword) {
+        return bcrypt.compare(candidatePassword, this.password);
+    }
+}
 
 User.init(
     {
+        //бажано айді, але...
         username: {
-            type: DataTypes.STRING,
+            type: DataTypes.STRING(64),
             primaryKey: true,
+            validate: {
+                len: [3, 64],
+            },
         },
         password: {
             type: DataTypes.STRING,
@@ -19,39 +28,18 @@ User.init(
         modelName: "User",
         tableName: "users",
         timestamps: false,
+        hooks: {
+            beforeSave: async (user) => {
+                if (user.password && user.changed("password")) {
+                    const saltRounds = Number(process.env.SALT_ROUNDS) || 10;
+                    user.password = await bcrypt.hash(
+                        user.password,
+                        saltRounds,
+                    );
+                }
+            },
+        },
     },
 );
 
-
-// class UserBuild extends Model {}
-//
-// UserBuild.init(
-//     {
-//         username: {
-//             type: DataTypes.STRING,
-//             allowNull: false,
-//             references: {
-//                 key: "username",
-//                 model: User,
-//             },
-//         },
-//         buildId: {
-//             type: DataTypes.INTEGER,
-//             allowNull: false,
-//             unique: true,
-//             references: {
-//                 key: "buildId",
-//                 model: Build,
-//             },
-//         },
-//     },
-//     {
-//         sequelize,
-//         modelName: "UserBuild",
-//         tableName: "usersBuilds",
-//         timestamps: false,
-//     },
-// );
-
-// UserBuild.belongsToMany(User, { foreignKey: "username" });
-// UserBuild.belongsTo(Build, { foreignKey: "buildId" });
+export default User;
