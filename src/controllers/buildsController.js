@@ -1,14 +1,6 @@
 import asyncHandler from "../utils/asyncHandler.js";
 import buildService from "../services/buildService.js";
 
-const checkId = asyncHandler(async (req, res, next) => {
-    const { id } = req.params;
-    const build = await buildService.getBuildById(id);
-
-    res.locals.build = build;
-    next();
-});
-
 const getAllBuilds = asyncHandler(async (req, res, next) => {
     const builds = await buildService.getAllBuilds();
 
@@ -28,7 +20,7 @@ const createBuild = asyncHandler(async (req, res, next) => {
 });
 
 const getBuildById = asyncHandler(async (req, res, next) => {
-    const build = res.locals.build;
+    const build = buildService.getBuildById(req.params.id);
 
     res.status(200).json({
         status: "success",
@@ -37,8 +29,7 @@ const getBuildById = asyncHandler(async (req, res, next) => {
 });
 
 const updateBuild = asyncHandler(async (req, res, next) => {
-    const build = res.locals.build;
-    await buildService.updateBuild(build, req.body);
+    const build = await buildService.updateBuild(req.params.id, req.body);
 
     res.status(200).json({
         status: "success",
@@ -47,8 +38,7 @@ const updateBuild = asyncHandler(async (req, res, next) => {
 });
 
 const deleteBuild = asyncHandler(async (req, res, next) => {
-    const build = res.locals.build;
-    await buildService.deleteBuild(build);
+    await buildService.deleteBuild(req.params.id);
 
     res.status(204).send();
 });
@@ -64,7 +54,6 @@ const getBuildsByUser = asyncHandler(async (req, res, next) => {
 });
 
 export {
-    checkId,
     getAllBuilds,
     createBuild,
     getBuildById,

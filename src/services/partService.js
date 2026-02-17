@@ -12,7 +12,7 @@ class PartService {
         return part;
     }
 
-    async getAllParts(id) {
+    async getAllParts() {
         return await Part.findAll();
     }
 
@@ -20,13 +20,17 @@ class PartService {
         return await Part.create(partData);
     }
 
-    async updatePart(partInstance, updatedData) {
-        return await partInstance.update(updatedData);
+    async updatePart(id, updatedData) {
+        const part = await this.getPartById(id);
+
+        return await part.update(updatedData);
     }
 
-    async deletePart(partInstance) {
-        return await partInstance.destroy();
+    async deletePart(id) {
+        const part = await this.getPartById(id);
+
+        return await part.destroy();
     }
 }
 
-export default new PartService()
+export default new PartService();

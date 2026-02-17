@@ -46,11 +46,15 @@ class BuildService {
         return await Build.create(buildData);
     }
 
-    async updateBuild(buildInstance, updatedData) {
+    async updateBuild(id, updatedData) {
+        const buildInstance = await this.checkExistence(id);
+
         return await buildInstance.update(updatedData);
     }
 
-    async deleteBuild(buildInstance) {
+    async deleteBuild(id) {
+        const buildInstance = await this.checkExistence(id);
+
         return await buildInstance.destroy();
     }
 

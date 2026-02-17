@@ -1,20 +1,12 @@
 import partService from "../services/partService.js";
 import asyncHandler from "../utils/asyncHandler.js";
 
-const checkId = asyncHandler(async (req, res, next) => {
-    const { id } = req.params;
-    const part = await partService.getPartById(id);
-
-    res.locals.part = part;
-    next();
-});
-
 const getAllParts = asyncHandler(async (req, res, next) => {
     const parts = await partService.getAllParts();
 
     res.status(200).json({
         status: "success",
-        data: [...parts],
+        data: parts,
     });
 });
 
@@ -28,7 +20,7 @@ const createPart = asyncHandler(async (req, res, next) => {
 });
 
 const getPartById = (req, res, next) => {
-    const part = res.locals.part;
+    const part = partService.getPartById(req.params.id);
 
     res.status(200).json({
         status: "success",
@@ -37,8 +29,7 @@ const getPartById = (req, res, next) => {
 };
 
 const updatePart = asyncHandler(async (req, res, next) => {
-    const part = res.locals.part;
-    const updatedPart = await partService.updatePart(part, req.body);
+    const updatedPart = await partService.updatePart(req.params.id, req.body);
 
     res.status(200).json({
         status: "success",
@@ -47,14 +38,12 @@ const updatePart = asyncHandler(async (req, res, next) => {
 });
 
 const deletePart = asyncHandler(async (req, res, next) => {
-    const part = res.locals.part;
-    await partService.deletePart(part);
+    await partService.deletePart(req.params.id);
 
     res.status(204).send();
 });
 
 export {
-    checkId,
     getAllParts,
     createPart,
     getPartById,
