@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { paramsIdSchema } from "./commonSchema";
 
 const FormFactors = ["60%", "65%", "75%", "TKL", "Full-size", "96%"];
 const SwitchTypes = ["Linear", "Tactile", "Clicky", "Silent"];
@@ -70,8 +71,32 @@ const createPartSchema = z.object({
             type: z.literal("keycap"),
             specs: keycapSpecs,
         }),
-        ,
     ]),
 });
 
-export default createPartSchema;
+const updatePartSchema = z.object({
+    ...paramsIdSchema.shape,
+    body: z.discriminatedUnion("type", [
+        commonFields.partial().extend({
+            type: z.literal("switch"),
+            specs: switchSpecs,
+        }),
+
+        commonFields.partial().extend({
+            type: z.literal("case"),
+            specs: caseSpecs,
+        }),
+
+        commonFields.partial().extend({
+            type: z.literal("pcb"),
+            specs: pcbSpecs,
+        }),
+
+        commonFields.partial().extend({
+            type: z.literal("keycap"),
+            specs: keycapSpecs,
+        }),
+    ]),
+});
+
+export { createPartSchema, updatePartSchema };
