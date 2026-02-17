@@ -1,6 +1,6 @@
 import { DataTypes, Model } from "sequelize";
 import sequelize from "../config/db.js";
-import Part from "./partsModel.js";
+import Part from "./partModel.js";
 import User from "./userModel.js";
 
 class Build extends Model {}
@@ -8,47 +8,50 @@ class Build extends Model {}
 Build.init(
     {
         buildId: {
-            type: DataTypes.INTEGER,
+            type: DataTypes.UUID,
             primaryKey: true,
-            autoIncrement: true,
+            defaultValue: DataTypes.UUIDV4,
         },
         name: {
-            type: DataTypes.STRING,
+            type: DataTypes.STRING(64),
             allowNull: false,
+            validate: {
+                len: [3, 64],
+            },
         },
         username: {
-            type: DataTypes.STRING,
+            type: DataTypes.STRING(64),
             references: {
-                key: username,
-                model: User,
+                key: "username",
+                model: "users",
             },
         },
         switchId: {
-            type: DataTypes.INTEGER,
+            type: DataTypes.UUID,
             references: {
                 key: "partId",
-                model: Part,
+                model: "parts",
             },
         },
         caseId: {
-            type: DataTypes.INTEGER,
+            type: DataTypes.UUID,
             references: {
                 key: "partId",
-                model: Part,
+                model: "parts",
             },
         },
         pcbId: {
-            type: DataTypes.INTEGER,
+            type: DataTypes.UUID,
             references: {
                 key: "partId",
-                model: Part,
+                model: "parts",
             },
         },
         keycapId: {
-            type: DataTypes.INTEGER,
+            type: DataTypes.UUID,
             references: {
                 key: "partId",
-                model: Part,
+                model: "parts",
             },
         },
     },

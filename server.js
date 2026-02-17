@@ -1,8 +1,7 @@
-import app from "./app.js";
-import sequelize from "./models/index.js";
+import app from "./src/app.js";
+import { sequelize } from "./src/models/index.js";
 
 const PORT = process.env.PORT || 3000;
-
 
 const start = async () => {
     try {
@@ -12,10 +11,9 @@ const start = async () => {
         await sequelize.sync({ alter: true });
 
         app.listen(PORT, () => console.log(`Server started on PORT ${PORT}`));
-    } catch (e) {
-        console.error("Failed to connect:", e);
+    } catch (error) {
+        console.error("Failed to connect:", error);
     }
 };
 
 start();
-

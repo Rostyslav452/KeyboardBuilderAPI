@@ -1,9 +1,22 @@
 import express from "express";
-import partsController from "../controllers/partsController";
+import validate from "../middlewares/validateMiddleware.js";
+import {
+    loginSchema,
+    registerSchema,
+    resetPasswordSchema,
+} from "../validators/schemas/authSchema.js";
+import * as authController from "../controllers/authController.js";
+
 const router = express.Router();
 
-router.params("id"); //ValidateId
+router.route("/login").post(validate(loginSchema), authController.login);
 
-router.route("/").get(getAllParts).post(createPart);
+router
+    .route("/register")
+    .post(validate(registerSchema), authController.register);
 
-router.route("/:id").get(getPartById).patch(updatePart).delete(deletePart);
+router
+    .route("/resetPassword")
+    .post(validate(resetPasswordSchema), authController.resetPassword);
+
+export default router;
