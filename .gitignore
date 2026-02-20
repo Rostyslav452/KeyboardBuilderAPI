@@ -1,4 +1,5 @@
 /bugs
 .env
+index,
 /node_modules
 npm-debug.log

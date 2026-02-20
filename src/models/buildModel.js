@@ -1,7 +1,5 @@
 import { DataTypes, Model } from "sequelize";
-import sequelize from "../config/db.js";
-import Part from "./partModel.js";
-import User from "./userModel.js";
+import sequelize from "../../config/db.js";
 
 class Build extends Model {}
 

@@ -1,5 +1,5 @@
 import { DataTypes, Model } from "sequelize";
-import sequelize from "../config/db.js";
+import sequelize from "../../config/db.js";
 import bcrypt from "bcryptjs";
 
 class User extends Model {
@@ -10,7 +10,6 @@ class User extends Model {
 
 User.init(
     {
-        //бажано айді, але...
         username: {
             type: DataTypes.STRING(64),
             primaryKey: true,

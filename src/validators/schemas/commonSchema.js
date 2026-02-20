@@ -3,8 +3,8 @@ import { z } from "zod";
 const paramsIdSchema = z.object({
     params: {
         id: z
-            .string({ required_error: "ID param is required" })
-            .uuid({ message: "ID param must be in UUID format" }),
+            .string({ required_error: "ID is required" })
+            .uuid({ message: "Invalid ID format" }),
     },
 });
 

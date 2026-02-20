@@ -1,26 +1,19 @@
 import { z } from "zod";
 
 const envSchema = z.object({
-    DB_NAME: z
-        .string({
-            required_error: "DB_NAME is required",
-            invalid_type_error: "DB_NAME must be a string",
-        })
+    DB_NAME: z.string().min(1).max(32),
+    DB_USERNAME: z.string().min(1).max(32),
+    DB_PASSWORD: z.string().min(1),
+    DB_HOST: z.string({}).min(1),
+    PORT: z.coerce.number({}).int().min(1).max(65535).default(3000),
+    NODE_ENV: z
+        .enum(["development", "production", "test"])
+        .default("production"),
+    ALLOWED_ORIGINS: z
+        .string()
         .min(1)
-        .max(32),
-    DB_USERNAME: z
-        .string({
-            required_error: "DB_USERNAME is required",
-            invalid_type_error: "DB_USERNAME must be a string",
-        })
-        .min(1)
-        .max(32),
-    DB_PASSWORD: z
-        .string({
-            required_error: "DB_PASSWORD is required",
-            invalid_type_error: "DB_PASSWORD must be a string",
-        })
-        .min(1),
+        .transform((str) => str.split(",").map((origin) => origin.trim())),
+    SALT_ROUNDS: z.coerce.number().min(1).max(20).default(10),
 });
 
 export default envSchema;

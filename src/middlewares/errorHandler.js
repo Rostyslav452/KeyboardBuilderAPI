@@ -1,7 +1,3 @@
-import dotenv from "dotenv";
-
-dotenv.config();
-
 const sendErrorDev = (err, res) => {
     res.status(err.statusCode).json({
         status: err.status,
