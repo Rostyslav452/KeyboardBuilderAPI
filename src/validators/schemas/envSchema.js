@@ -14,6 +14,9 @@ const envSchema = z.object({
         .min(1)
         .transform((str) => str.split(",").map((origin) => origin.trim())),
     SALT_ROUNDS: z.coerce.number().min(1).max(20).default(10),
+    LOG_LEVEL: z
+        .enum(["silent", "trace", "debug", "info", "warn", "error", "fatal"])
+        .default("info"),
 });
 
 export default envSchema;

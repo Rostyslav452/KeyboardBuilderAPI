@@ -3,8 +3,8 @@ import cors from "cors";
 import morgan from "morgan";
 import helmet from "helmet";
 
-import env from "../config/env.js";
-import corsOptions from "../config/cors.js";
+import { env } from "./config/env.js";
+import corsOptions from "./config/cors.js";
 import AppError from "./utils/appError.js";
 import errorHandler from "./middlewares/errorHandler.js";
 import authRouter from "./routers/authRouter.js";

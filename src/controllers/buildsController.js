@@ -2,20 +2,16 @@ import asyncHandler from "../utils/asyncHandler.js";
 import buildService from "../services/buildService.js";
 
 const getAllBuilds = asyncHandler(async (req, res, next) => {
-    const builds = await buildService.getAllBuilds();
+    const { limit, offset, sort } = req.query;
+    const builds = await buildService.getAllBuilds({
+        limit: Number(limit) || 10,
+        offset: Number(offset) || 0,
+        sort: sort || "ASC",
+    });
 
     res.status(200).json({
         status: "success",
         data: builds,
-    });
-});
-
-const createBuild = asyncHandler(async (req, res, next) => {
-    const newBuild = await buildService.createBuild(req.body);
-
-    res.status(201).json({
-        status: "success",
-        data: newBuild,
     });
 });
 
@@ -25,6 +21,15 @@ const getBuildById = asyncHandler(async (req, res, next) => {
     res.status(200).json({
         status: "success",
         data: build,
+    });
+});
+
+const createBuild = asyncHandler(async (req, res, next) => {
+    const newBuild = await buildService.createBuild(req.body);
+
+    res.status(201).json({
+        status: "success",
+        data: newBuild,
     });
 });
 

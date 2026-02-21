@@ -1,4 +1,4 @@
-import logger from "../utils/logger";
+import logger from "../utils/logger.js";
 import envSchema from "../validators/schemas/envSchema.js";
 import dotenv from "dotenv";
 

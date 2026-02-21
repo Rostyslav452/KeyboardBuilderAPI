@@ -8,17 +8,22 @@ const validate = (schema) => (req, res, next) => {
     });
 
     if (!result.success) {
-        const errors = result.error.errors
+        const errors = result.error.issues
             .map((error) => error.message)
             .join(". ");
+
+        req.log.warn(
+            {
+                err: result.error.flatten(),
+            },
+            "Validation error",
+        );
         next(new AppError(`Validation error ${errors}`, 400));
         return;
     }
 
     if (result.data.body) req.body = result.data.body;
-    if (result.data.query) req.query = result.data.query;
     if (result.data.params) req.params = result.data.params;
-
     next();
 };
 

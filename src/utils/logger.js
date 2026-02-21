@@ -1,4 +1,7 @@
 import pino from "pino";
+import dotenv from "dotenv";
+dotenv.config();
+
 
 const transport = pino.transport({
     targets: [
@@ -12,9 +15,9 @@ const transport = pino.transport({
         },
         {
             target: "pino/file",
-            level: "debug",
+            level: "info",
             options: {
-                mkdir:true,
+                mkdir: true,
                 destination: "../log/info.log",
             },
         },
@@ -30,6 +33,6 @@ const transport = pino.transport({
     ],
 });
 
-const logger = pino(transport);
+const logger = pino({ level: process.env.LOG_LEVEL }, transport);
 
 export default logger;

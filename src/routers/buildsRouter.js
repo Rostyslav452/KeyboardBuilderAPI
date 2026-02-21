@@ -8,13 +8,14 @@ import {
 import {
     paramsIdSchema,
     paramsUsernameSchema,
+    queryFilteringSchema,
 } from "../validators/schemas/commonSchema.js";
 
 const router = express.Router();
 
 router
     .route("/")
-    .get(buildsController.getAllBuilds)
+    .get(validate(queryFilteringSchema), buildsController.getAllBuilds)
     .post(validate(createBuildSchema), buildsController.createBuild);
 
 router

@@ -1,15 +1,15 @@
-import { Part, Build } from "../models/index.js";
+import db from "../models/index.js";
 import AppError from "../utils/appError.js";
 
 class BuildService {
     async getBuildById(id) {
-        const build = await Build.findByPk(id, {
+        const build = await db.Build.findByPk(id, {
             attributes: { exclude: ["username"] },
             include: [
-                { model: Part, as: "keyboardSwitch" },
-                { model: Part, as: "keyboardCase" },
-                { model: Part, as: "keyboardPCB" },
-                { model: Part, as: "keyboardKeycap" },
+                { model: db.Part, as: "keyboardSwitch" },
+                { model: db.Part, as: "keyboardCase" },
+                { model: db.Part, as: "keyboardPCB" },
+                { model: db.Part, as: "keyboardKeycap" },
             ],
         });
 
@@ -21,7 +21,7 @@ class BuildService {
     }
 
     async checkExistence(id) {
-        const build = await Build.findByPk(id);
+        const build = await db.Build.findByPk(id);
 
         if (!build) {
             throw new AppError(`Build with this ID ${id} not found`, 404);
@@ -30,20 +30,23 @@ class BuildService {
         return build;
     }
 
-    async getAllBuilds() {
-        return await Build.findAll({
+    async getAllBuilds({ limit, offset, sort }) {
+        return await db.Build.findAll({
             attributes: { exclude: ["username"] },
             include: [
-                { model: Part, as: "keyboardSwitch" },
-                { model: Part, as: "keyboardCase" },
-                { model: Part, as: "keyboardPCB" },
-                { model: Part, as: "keyboardKeycap" },
+                { model: db.Part, as: "keyboardSwitch" },
+                { model: db.Part, as: "keyboardCase" },
+                { model: db.Part, as: "keyboardPCB" },
+                { model: db.Part, as: "keyboardKeycap" },
             ],
+            order: [["name", sort]],
+            limit: limit,
+            offset: offset,
         });
     }
 
     async createBuild(buildData) {
-        return await Build.create(buildData);
+        return await db.Build.create(buildData);
     }
 
     async updateBuild(id, updatedData) {
@@ -59,13 +62,13 @@ class BuildService {
     }
 
     async getBuildsByUser(username) {
-        const builds = await Build.findAll({
+        const builds = await db.Build.findAll({
             attributes: { exclude: ["username"] },
             include: [
-                { model: Part, as: "keyboardSwitch" },
-                { model: Part, as: "keyboardCase" },
-                { model: Part, as: "keyboardPCB" },
-                { model: Part, as: "keyboardKeycap" },
+                { model: db.Part, as: "keyboardSwitch" },
+                { model: db.Part, as: "keyboardCase" },
+                { model: db.Part, as: "keyboardPCB" },
+                { model: db.Part, as: "keyboardKeycap" },
             ],
             where: {
                 username: username,

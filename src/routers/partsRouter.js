@@ -5,13 +5,16 @@ import {
     updatePartSchema,
     createPartSchema,
 } from "../validators/schemas/partSchema.js";
-import { paramsIdSchema } from "../validators/schemas/commonSchema.js";
+import {
+    paramsIdSchema,
+    queryFilteringSchema,
+} from "../validators/schemas/commonSchema.js";
 
 const router = express.Router();
 
 router
     .route("/")
-    .get(partsController.getAllParts)
+    .get(validate(queryFilteringSchema), partsController.getAllParts)
     .post(validate(createPartSchema), partsController.createPart);
 
 router

@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { paramsIdSchema } from "./commonSchema";
+import { paramsIdSchema } from "./commonSchema.js";
 
 const buildPayload = z.object({
     body: z.object({

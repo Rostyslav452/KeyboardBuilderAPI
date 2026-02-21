@@ -1,9 +1,9 @@
-import { Part } from "../models/index.js";
+import db from "../models/index.js";
 import AppError from "../utils/appError.js";
 
 class PartService {
     async getPartById(id) {
-        const part = await Part.findByPk(id);
+        const part = await db.Part.findByPk(id);
 
         if (!part) {
             throw new AppError(`Part with ID ${id} not found`, 404);
@@ -12,12 +12,16 @@ class PartService {
         return part;
     }
 
-    async getAllParts() {
-        return await Part.findAll();
+    async getAllParts({ limit, offset, sort }) {
+        return await db.Part.findAll({
+            order: [["name", sort]],
+            limit: limit,
+            offset: offset,
+        });
     }
 
     async createPart(partData) {
-        return await Part.create(partData);
+        return await db.Part.create(partData);
     }
 
     async updatePart(id, updatedData) {

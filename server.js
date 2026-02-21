@@ -1,18 +1,25 @@
+import { env } from "./src/config/env.js";
 import app from "./src/app.js";
 import { sequelize } from "./src/models/index.js";
+import logger from "./src/utils/logger.js";
 
-const PORT = process.env.PORT || 3000;
+const serverLogger = logger.child({ module: "SERVER" });
+const PORT = env.PORT || 3000;
 
 const start = async () => {
     try {
         await sequelize.authenticate();
-        console.log("Connection to DB successful");
+        serverLogger.info("Connection to DB successful");
 
-        await sequelize.sync({ alter: true });
+        await app.listen(PORT);
 
-        app.listen(PORT, () => console.log(`Server started on PORT ${PORT}`));
+        serverLogger.info({
+            msg: `Server started successful on PORT ${PORT}`,
+            port: PORT,
+        });
     } catch (error) {
-        console.error("Failed to connect:", error);
+        serverLogger.fatal("Failed to connect:", error);
+        process.exit(1);
     }
 };
 

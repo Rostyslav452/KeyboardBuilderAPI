@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { paramsIdSchema } from "./commonSchema";
+import { paramsIdSchema } from "./commonSchema.js";
 
 const FormFactors = ["60%", "65%", "75%", "TKL", "Full-size", "96%"];
 const SwitchTypes = ["Linear", "Tactile", "Clicky", "Silent"];

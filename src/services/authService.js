@@ -1,56 +1,110 @@
-import { User } from "../models/index.js";
+import db from "../models/index.js";
 import AppError from "../utils/appError.js";
 
 class AuthService {
-    async register(userData) {
+    async register(userData, log) {
         const { username, password } = userData;
 
-        const candidate = await User.findByPk(username);
+        log.info({ username }, "Registration attempt started");
 
-        if (candidate) {
-            throw new AppError(
-                `User with this username ${username} has already exist`,
-                409,
-            );
+        try {
+            const candidate = await db.User.findByPk(username);
+
+            if (candidate) {
+                log.warn(
+                    { username },
+                    "Registration failed: User already exist",
+                );
+                throw new AppError(
+                    `User with this username ${username} has already exist`,
+                    409,
+                );
+            }
+
+            const newUser = await db.User.create({ username, password });
+
+            log.info({ id: newUser.id, username }, "Registration successful");
+
+            return newUser;
+        } catch (err) {
+            if (!err.isOperational) {
+                log.error(
+                    { err, username },
+                    "Database error during registration",
+                );
+            }
+            throw err;
         }
-
-        return await User.create({ username, password });
     }
 
-    async login(userData) {
+    async login(userData, log) {
         const { username, password } = userData;
-        const user = await User.findByPk(username);
 
-        if (!user) {
-            throw new AppError("Invalid username or password", 401);
+        try {
+            log.info({ username }, "Login attempt started");
+            const user = await db.User.findByPk(username);
+
+            if (!user) {
+                log.warn({ username }, "Login failed: User not found");
+                throw new AppError("Invalid credentials", 401);
+            }
+
+            const isMatch = await user.comparePassword(password);
+
+            if (!isMatch) {
+                log.warn({ username }, "Login failed: Incorrect password");
+                throw new AppError("Invalid credentials", 401);
+            }
+
+            log.info({ id: user.id, username }, "Login successful");
+            return user;
+        } catch (err) {
+            if (!err.isOperational) {
+                log.error({ err, username }, "Database error during login");
+            }
+            throw err;
         }
-
-        const isMatch = await user.comparePassword(password);
-
-        if (!isMatch) {
-            throw new AppError("Invalid username or password", 401);
-        }
-        return user;
     }
 
-    async resetPassword(userData) {
+    async resetPassword(userData, log) {
         const { password, username, newPassword } = userData;
 
-        const user = await User.findByPk(username);
+        try {
+            log.info({ username }, "Reset password attempt started");
 
-        if (!user) {
-            throw new AppError("Username isn't found", 401);
+            const user = await db.User.findByPk(username);
+
+            if (!user) {
+                log.warn({ username }, "Reset password failed: User not found");
+                throw new AppError("Invalid credentials", 401);
+            }
+
+            const isMatch = await user.comparePassword(password);
+
+            if (!isMatch) {
+                log.warn(
+                    { username },
+                    "Reset password failed: Incorrect old password ",
+                );
+                throw new AppError("Invalid credentials", 401);
+            }
+
+            const updatedUser = await user.update({ password: newPassword });
+
+            log.info(
+                { id: updatedUser.id, username },
+                "Reset password successful",
+            );
+            return user;
+        } catch (err) {
+            if (!err.isOperational) {
+                log.error(
+                    { err, username },
+                    "Database error during reset password",
+                );
+            }
+            throw err;
         }
-
-        const isMatch = await user.comparePassword(password);
-
-        if (!isMatch) {
-            throw new AppError("Invalid password", 401);
-        }
-
-        await user.update({ password: newPassword });
-
-        return user;
     }
 }
 
