@@ -9,9 +9,10 @@ const corsOptions = {
             callback(new AppError("", 403));
         }
     },
-    
+
     methods: ["GET", "POST", "PATCH", "DELETE"],
     allowedHeaders: ["Content-Type", "Authorization"],
+    credentials: true,
 };
 
 export default corsOptions;

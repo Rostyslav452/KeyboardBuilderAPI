@@ -9,6 +9,7 @@ export default (sequelize, DataTypes) => {
 
         static associate(models) {
             this.hasMany(models.Build, { foreignKey: "username" });
+            this.hasMany(model.Token, { foreignKey: "username" });
         }
     }
 

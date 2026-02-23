@@ -1,8 +1,7 @@
-import {  Model } from "sequelize";
+import { Model } from "sequelize";
 
 export default (sequelize, DataTypes) => {
-    class Part extends Model {
-     }
+    class Part extends Model {}
 
     Part.init(
         {
@@ -46,4 +45,4 @@ export default (sequelize, DataTypes) => {
     );
 
     return Part;
-}
+};

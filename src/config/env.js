@@ -9,7 +9,7 @@ const parsedEnv = envSchema.safeParse(process.env);
 if (!parsedEnv.success) {
     const log = logger.child({ module: "ENV_ERROR_VALIDATION" });
     log.error(
-        { errors: parsedEnv.error.format() },
+        { errors: parsedEnv.error.flatten() },
         "Invalid environment variables",
     );
 
