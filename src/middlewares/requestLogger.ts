@@ -1,0 +1,43 @@
+import logger from "../utils/logger.js";
+import pinoHttp from "pino-http";
+import crypto from "crypto";
+import { Request, Response } from "express";
+import { IncomingMessage, ServerResponse } from "http";
+
+const requestLogger = pinoHttp({
+    logger: logger,
+    serializers: {
+        req(req: IncomingMessage) {
+            const expressReq = req as Request;
+
+            let safeBody = undefined;
+
+            if (expressReq.body && Object.keys(expressReq.body).length > 0) {
+                safeBody = { ...expressReq.body };
+
+                if (safeBody.password) safeBody.password = "****";
+                if (safeBody.newPassword) safeBody.newPassword = "****";
+            }
+
+            return {
+                method: expressReq.method,
+                url: expressReq.url,
+                ip: expressReq.ip,
+                body: safeBody,
+            };
+        },
+    },
+    genReqId: (req: IncomingMessage, res: ServerResponse) => {
+        return req.id || crypto.randomUUID();
+    },
+    customLogLevel: (
+        req: IncomingMessage,
+        res: ServerResponse,
+        err?: Error,
+    ) => {
+        if (res.statusCode >= 500 || err) return "silent";
+        return "info";
+    },
+});
+
+export { requestLogger };
