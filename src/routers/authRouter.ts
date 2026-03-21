@@ -13,7 +13,6 @@ import {
 import authentication from "../middlewares/authMiddleware.js";
 
 const router = express.Router();
-
 router
     .route("/login")
     .post(loginRateLimiter, validate(loginSchema), authController.login);
@@ -33,5 +32,9 @@ router
         validate(resetPasswordSchema),
         authController.resetPassword,
     );
+
+router.route("/token").post(authController.token);
+
+router.route("/logout").post(authController.logout);
 
 export default router;

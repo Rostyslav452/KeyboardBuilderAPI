@@ -63,7 +63,7 @@ const logout = asyncHandler(async (req, res) => {
 
 const resetPassword = asyncHandler(async (req, res) => {
     const body = res.locals.body as ResetPasswordDto;
-    const user = res.locals.user as JWTPayload;
+    const user = req.user as JWTPayload;
 
     const username = await authService.resetPassword(body, user, req.log);
 

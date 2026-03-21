@@ -1,5 +1,5 @@
 import { Logger } from "pino";
-import { JWTPayload } from "./jwt.type";
+import { JWTPayload } from "./jwt.type.js";
 declare global {
     namespace Express {
         interface Request {
@@ -11,7 +11,6 @@ declare global {
             body?: any;
             params?: any;
             query?: any;
-            user?: JWTPayload;
         }
     }
 }

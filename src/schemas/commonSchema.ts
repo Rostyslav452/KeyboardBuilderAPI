@@ -14,22 +14,12 @@ const queryPaginationSchema = z.object({
     }),
 });
 
-const paramsUsernameSchema = z.object({
-    username: z
-        .string()
-        .min(3, { message: "Username must be at least 3 characters" })
-        .max(32, { message: "Username must be less than 32 character long" }),
-});
-
 type ParamsIdDto = z.infer<typeof paramsIdSchema>["params"];
 type QueryPaginationDto = z.infer<typeof queryPaginationSchema>["query"];
-type ParamsUsernameDto = z.infer<typeof paramsUsernameSchema>;
 
 export {
     ParamsIdDto,
     QueryPaginationDto,
-    ParamsUsernameDto,
     paramsIdSchema,
-    paramsUsernameSchema,
     queryPaginationSchema,
 };

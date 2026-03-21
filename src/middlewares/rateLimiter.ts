@@ -2,6 +2,7 @@ import rateLimiter from "express-rate-limit";
 import AppError from "../core/appError.js";
 import { env } from "../config/env.js";
 import logger from "../utils/logger.js";
+import { Request, Response, NextFunction } from "express";
 
 const rlLogger = logger.child({ context: "RateLimiter" });
 
@@ -10,7 +11,7 @@ const globalRateLimiter = rateLimiter({
     limit: 1000,
     standardHeaders: "draft-7",
     legacyHeaders: false,
-    handler: (req, res, next) => {
+    handler: (req: Request, res: Response, next: NextFunction) => {
         rlLogger.warn("User have reached limit of requests");
         next(new AppError("You have reached limit of requests", 429));
     },
@@ -25,7 +26,7 @@ const loginRateLimiter = rateLimiter({
     standardHeaders: "draft-7",
     legacyHeaders: false,
     skipSuccessfulRequests: true,
-    handler: (req, res, next) => {
+    handler: (req: Request, res: Response, next: NextFunction) => {
         req.log.warn(
             {
                 user: req.user ? req.user.username : "guest",
@@ -42,7 +43,7 @@ const registerRateLimiter = rateLimiter({
     standardHeaders: "draft-7",
     legacyHeaders: false,
     skipSuccessfulRequests: false,
-    handler: (req, res, next) => {
+    handler: (req: Request, res: Response, next: NextFunction) => {
         req.log.warn(
             {
                 windowMs: req.rateLimit.windowMs,

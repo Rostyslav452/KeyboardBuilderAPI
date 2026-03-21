@@ -7,7 +7,6 @@ import {
 } from "../schemas/buildSchema.js";
 import {
     paramsIdSchema,
-    paramsUsernameSchema,
     queryPaginationSchema,
 } from "../schemas/commonSchema.js";
 import authentication from "../middlewares/authMiddleware.js";
@@ -38,11 +37,7 @@ router
     );
 
 router
-    .route("/user/:username")
-    .get(
-        authentication,
-        validate(paramsUsernameSchema),
-        buildsController.getBuildsByUser,
-    );
+    .route("/user")
+    .get(authentication, buildsController.getBuildsByUser);
 
 export default router;

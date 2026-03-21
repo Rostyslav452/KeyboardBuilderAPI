@@ -1,7 +1,7 @@
 import logger from "../utils/logger.js";
-import pinoHttp from "pino-http";
+import {pinoHttp} from "pino-http";
 import crypto from "crypto";
-import { Request, Response } from "express";
+import { Request } from "express";
 import { IncomingMessage, ServerResponse } from "http";
 
 const requestLogger = pinoHttp({
@@ -11,7 +11,6 @@ const requestLogger = pinoHttp({
             const expressReq = req as Request;
 
             let safeBody = undefined;
-
             if (expressReq.body && Object.keys(expressReq.body).length > 0) {
                 safeBody = { ...expressReq.body };
 

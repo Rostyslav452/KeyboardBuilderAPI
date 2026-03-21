@@ -1,4 +1,3 @@
-import logger from "../utils/logger.ts";
 import dotenv from "dotenv";
 
 dotenv.config();
@@ -32,9 +31,11 @@ export type EnvConfig = z.infer<typeof envSchema>;
 const parsedEnv = envSchema.safeParse(process.env);
 
 if (!parsedEnv.success) {
-    const log = logger.child({ module: "ENV_ERROR_VALIDATION" });
-    log.error(
-        { errors: parsedEnv.error.flatten() },
+    console.error(
+        "ENV_ERROR_VALIDATION",
+        {
+            errors: parsedEnv.error.flatten(),
+        },
         "Invalid environment variables",
     );
 

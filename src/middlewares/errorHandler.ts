@@ -18,7 +18,6 @@ const sendErrorProd = (err: any, res: Response) => {
             message: err.message,
         });
     } else {
-        console.log("[ERROR]:Unknown error");
         res.status(500).json({
             status: "error",
             message: "Unknown error",

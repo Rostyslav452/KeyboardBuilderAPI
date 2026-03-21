@@ -6,10 +6,6 @@ const buildCoreSchema = z.object({
         .string()
         .min(3, { message: "Name too should be at least 3 character" })
         .max(64, { message: " Name too long" }),
-    username: z
-        .string()
-        .min(3, { message: "Username too should be at least 3 character" })
-        .max(64, { message: " Username too long" }),
     switchId: z.string().uuid({ message: "Invalid switch ID format" }),
     caseId: z.string().uuid({ message: "Invalid case ID format" }),
     pcbId: z.string().uuid({ message: "Invalid PCB ID format" }),

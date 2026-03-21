@@ -4,6 +4,7 @@ import { Build } from "../models/build.model.js";
 import { APIResponse } from "../types/api.type.js";
 import { CreateBuildDto, UpdateBuildDto } from "../schemas/buildSchema.js";
 import { QueryPaginationDto } from "../schemas/commonSchema.js";
+import { JWTPayload } from "../types/jwt.type.js";
 
 const getAllBuilds = asyncHandler(async (req, res, next) => {
     const query = res.locals.query as QueryPaginationDto;
@@ -27,12 +28,9 @@ const getBuildById = asyncHandler(async (req, res, next) => {
 
 const createBuild = asyncHandler(async (req, res, next) => {
     const body = res.locals.body as CreateBuildDto;
-    const username = res.locals.user!.username;
+    const username = req.user!.username;
 
-    const newBuild = await buildService.createBuild({
-        ...body,
-        username,
-    });
+    const newBuild = await buildService.createBuild(body, username);
 
     res.status(201).json({
         status: "success",
@@ -43,13 +41,9 @@ const createBuild = asyncHandler(async (req, res, next) => {
 const updateBuild = asyncHandler(async (req, res, next) => {
     const id = res.locals.params.id as string;
     const body = res.locals.body as UpdateBuildDto;
-    const username = res.locals.user!.username;
+    const username = req.user!.username;
 
-    const build = await buildService.updateBuild(id, {
-        ...body,
-        username,
-    });
-
+    const build = await buildService.updateBuild(id, body, username);
     res.status(200).json({
         status: "success",
         data: build,
@@ -58,7 +52,7 @@ const updateBuild = asyncHandler(async (req, res, next) => {
 
 const deleteBuild = asyncHandler(async (req, res, next) => {
     const id = res.locals.params.id as string;
-    const username = res.locals.user!.username;
+    const username = req.user!.username;
 
     await buildService.deleteBuild(id, username);
 
@@ -66,7 +60,7 @@ const deleteBuild = asyncHandler(async (req, res, next) => {
 });
 
 const getBuildsByUser = asyncHandler(async (req, res, next) => {
-    const username = res.locals.user!.username;
+    const username = req.user!.username;
 
     const builds = await buildService.getBuildsByUser(username);
 

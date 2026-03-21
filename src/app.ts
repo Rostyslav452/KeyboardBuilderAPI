@@ -29,7 +29,7 @@ app.use("/api/v1/parts", partsRouter);
 app.use("/api/v1/builds", buildsRouter);
 
 app.all(/(.*)/, (req, res, next) => {
-    next(new AppError(`Can't find ${req.originalUrl} on this server!`, 404));
+   next(new AppError(`Can't find ${req.originalUrl} on this server!`, 404));
 });
 
 app.use(errorHandler);

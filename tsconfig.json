@@ -1,0 +1,26 @@
+{
+    "compilerOptions": {
+        "target": "ES2022",
+        "module": "NodeNext",
+        "moduleResolution": "NodeNext",
+        "esModuleInterop": true,
+
+        "outDir": "./dist",
+        "rootDir": "./src",
+        "sourceMap": true,
+
+        "strict": true,
+        "noImplicitAny": true,
+        "strictNullChecks": true,
+
+        "experimentalDecorators": true,
+        "emitDecoratorMetadata": true,
+
+        "baseUrl": "./",
+        "paths": {
+            "@/*": ["src/*"]
+        }
+    },
+    "include": ["src/**/*"],
+    "exclude": ["node_modules", "dist", "**/*.spec.ts"]
+}

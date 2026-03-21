@@ -52,14 +52,18 @@ class BuildService {
         });
     }
 
-    async createBuild(buildData: CreateBuildDto): Promise<Build> {
-        return await db.Build.create(buildData);
+    async createBuild(data: CreateBuildDto, username: string): Promise<Build> {
+        return await db.Build.create({ ...data, username });
     }
 
-    async updateBuild(id: string, updatedData: UpdateBuildDto): Promise<Build> {
+    async updateBuild(
+        id: string,
+        updatedData: UpdateBuildDto,
+        username: string,
+    ): Promise<Build> {
         const buildInstance = await this.checkExistence(id);
 
-        if (buildInstance.username !== updatedData.username) {
+        if (buildInstance.username !== username) {
             throw new AppError(
                 "Invalid username, token username not equal to body username",
                 403,
