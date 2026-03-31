@@ -1,4 +1,4 @@
-import AppError from "../core/appError.js";
+import AppError from "../core/AppError.js";
 import { CorsOptions } from "cors";
 import { env } from "./env.js";
 

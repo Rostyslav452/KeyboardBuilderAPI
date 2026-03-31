@@ -1,4 +1,4 @@
-import logger from "../utils/logger.js";
+import logger from "../config/logger.js";
 import {pinoHttp} from "pino-http";
 import crypto from "crypto";
 import { Request } from "express";
@@ -39,4 +39,4 @@ const requestLogger = pinoHttp({
     },
 });
 
-export { requestLogger };
+export default requestLogger;

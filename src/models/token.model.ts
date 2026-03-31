@@ -6,6 +6,8 @@ import {
     DataTypes,
     Sequelize,
 } from "sequelize";
+import bcrypt from "bcryptjs";
+import { env } from "../config/env.js";
 
 export class Token extends Model<
     InferAttributes<Token>,
@@ -15,6 +17,10 @@ export class Token extends Model<
     declare username: string;
     declare refreshToken: string;
     declare expiresAt: Date;
+
+    compareToken(candidateToken: string) {
+      return bcrypt.compare(candidateToken, this.refreshToken);
+   }
 }
 
 export const initTokenModel = (sequelize: Sequelize) => {
@@ -46,6 +52,13 @@ export const initTokenModel = (sequelize: Sequelize) => {
             tableName: "tokens",
             modelName: "Token",
             timestamps: false,
+            hooks:{
+               beforeSave: async(token) =>{
+                  if(token.refreshToken && token.changed("refreshToken")){
+                     token.refreshToken = await bcrypt.hash(token.refreshToken, env.SALT_ROUNDS);
+                  }
+               }
+            }
         },
     );
 

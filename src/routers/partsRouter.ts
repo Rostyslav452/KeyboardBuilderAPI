@@ -1,12 +1,12 @@
 import express from "express";
 import * as partsController from "../controllers/partsController.js";
-import validate from "../middlewares/validateMiddleware.js";
+import validate from "../middlewares/validation.js";
 import { updatePartSchema, createPartSchema } from "../schemas/partSchema.js";
 import {
     paramsIdSchema,
     queryPaginationSchema,
 } from "../schemas/commonSchema.js";
-import authentication from "../middlewares/authMiddleware.js";
+import authentication from "../middlewares/authentication.js";
 
 const router = express.Router();
 

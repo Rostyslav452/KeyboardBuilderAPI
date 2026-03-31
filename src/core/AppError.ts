@@ -2,7 +2,7 @@ interface IAppError {
     message: string;
     statusCode: number;
     isOperational: boolean;
-    err?: any;
+    err?: unknown;
 }
 
 class AppError extends Error implements IAppError {
@@ -12,7 +12,7 @@ class AppError extends Error implements IAppError {
     constructor(
         public readonly message: string,
         public statusCode: number,
-        public readonly err: any = null,
+        public readonly err: unknown = null,
     ) {
         super(message);
         Object.setPrototypeOf(this, new.target.prototype);

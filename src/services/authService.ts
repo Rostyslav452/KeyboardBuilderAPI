@@ -1,5 +1,5 @@
 import db from "../models/index.js";
-import AppError from "../core/appError.js";
+import AppError from "../core/AppError.js";
 import { env } from "../config/env.js";
 import jwt from "jsonwebtoken";
 import { JWTPayload } from "../types/jwt.type.js";
@@ -9,6 +9,7 @@ import {
     ResetPasswordDto,
 } from "../schemas/authSchema.js";
 import { Logger } from "pino";
+import { validateJWTPayload } from "../utils/jwt.util.js";
 
 export interface AuthResponse {
     username: string;
@@ -100,7 +101,7 @@ class AuthService {
             throw new AppError("Invalid credentials", 401);
         }
 
-        const payload = { username }; //role: user,admin
+        const payload = { username };
         const accessToken = this.#generateAccessToken(payload, log);
         const refreshToken = await this.#generateAndSaveRefreshToken(
             payload,
@@ -150,51 +151,68 @@ class AuthService {
 
         return username;
     }
+// revise
+    async logout(refreshToken:string, log: Logger): Promise<void> {
+        const data = jwt.verify(refreshToken, env.REFRESH_TOKEN_SECRET,{ ignoreExpiration: true });
 
-    async logout(refreshToken: string, log: Logger): Promise<void> {
-        if (!refreshToken) {
-            return;
+        const payload = validateJWTPayload(data);
+        log.info({ payload }, "Payload extracted successfully");
+
+        const allTokensByUser =  await db.Token.findAll({
+            where: {username:payload.username},
+        })
+
+        for(const token of allTokensByUser) {
+            if(await token.compareToken(refreshToken)){
+                await token.destroy();
+                break;
+            }
         }
-
-        await db.Token.destroy({
-            where: {
-                refreshToken: refreshToken,
-            },
-        });
 
         log.info("Logout successful: token removed from DB");
     }
 
-    async token(refreshToken: string, log: Logger): Promise<AuthResponse> {
+    async token(oldRefreshToken: string, log: Logger): Promise<AuthResponse> {
         log.info("Refresh token generation attempt");
 
-        const tokenInDb = await db.Token.findOne({
-            where: { refreshToken: refreshToken },
-        });
-
-        if (!tokenInDb) {
-            log.warn("Token not found in database (revoked or invalid)");
-            throw new AppError("Refresh token not exist", 401);
-        }
-
+        let data:unknown = null;
         try {
-            const encodedData: JWTPayload = jwt.verify(
-                refreshToken,
-                env.REFRESH_TOKEN_SECRET,
-            ) as JWTPayload;
-
-            const payload = { username: encodedData.username };
-            log.info(payload, "Refresh token verify successfully");
-
-            const accessToken = await this.#generateAccessToken(payload, log);
-            return { ...payload, accessToken, refreshToken };
+             data = jwt.verify(oldRefreshToken, env.REFRESH_TOKEN_SECRET,);
         } catch (err) {
-            throw new AppError(
-                "Invalid or expired session. Please log in.",
-                401,
-                err,
-            );
-        }
+        throw new AppError(
+           "Invalid or expired session. Please log in.",
+           401,
+           err,
+        );
+    }
+        const payload = validateJWTPayload(data);
+        log.info(payload, "Refresh token verify successfully");
+
+        const allTokensByUser = await db.Token.findAll({
+                where: { username: payload.username },
+            });
+
+            if (allTokensByUser.length === 0) {
+                throw new AppError("User with provided username not exist in Database", 401);
+            }
+
+            let refreshToken: string = "";
+            let isMatch= false;
+            for(const token of allTokensByUser) {
+                isMatch = await token.compareToken(oldRefreshToken)
+                if(isMatch) {
+                    refreshToken = await this.#generateAndSaveRefreshToken(payload, log);
+                    await token.destroy();
+                    break;
+                }
+            }
+
+            if (!isMatch) {
+                throw new AppError("User with provided token not exist in Database", 401);
+            }
+
+            const accessToken = this.#generateAccessToken(payload, log);
+            return { ...payload, accessToken, refreshToken };
     }
 }
 

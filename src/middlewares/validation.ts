@@ -1,9 +1,14 @@
-import { ZodObject } from "zod";
-import AppError from "../core/appError.js";
+import { z } from "zod";
+import AppError from "../core/AppError.js";
 import { NextFunction, Response, Request } from "express";
 
-const validate =
-    (schema: ZodObject) =>
+type ValidateRequestData = {
+   body?: unknown;
+   query?: unknown;
+   params?: unknown;
+}
+const validate=
+   <T extends ValidateRequestData> (schema: z.ZodType<T>) =>
     (req: Request, res: Response, next: NextFunction) => {
         const result = schema.safeParse({
             body: req.body,
@@ -26,8 +31,8 @@ const validate =
             return;
         }
 
-        if (result.data.params) res.locals.params = result.data.params as any;
-        if (result.data.query) res.locals.query = result.data.query as any;
+        if (result.data.params) res.locals.params = result.data.params
+        if (result.data.query) res.locals.query = result.data.query
         if (result.data.body) res.locals.body = result.data.body;
 
         next();

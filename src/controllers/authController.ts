@@ -2,7 +2,7 @@ import authService from "../services/authService.js";
 import asyncHandler from "../utils/asyncHandler.js";
 import { env } from "../config/env.js";
 import { CookieOptions } from "express";
-import AppError from "../core/appError.js";
+import AppError from "../core/AppError.js";
 import { APIResponse } from "../types/api.type.js";
 import {
     LoginDto,
@@ -11,11 +11,21 @@ import {
 } from "../schemas/authSchema.js";
 import { JWTPayload } from "../types/jwt.type.js";
 
+type AuthUserResponse = {
+    username: string;
+};
+
 const expiresInDays = env.EXPIRES_IN_REFRESH_TOKEN;
 const maxAge = expiresInDays * 1000 * 60 * 60 * 24;
 
 const cookieOptions: CookieOptions = {
     maxAge,
+    httpOnly: true,
+    secure: env.NODE_ENV === "production",
+    sameSite: "strict",
+};
+
+const clearCookieOptions: CookieOptions = {
     httpOnly: true,
     secure: env.NODE_ENV === "production",
     sameSite: "strict",
@@ -32,7 +42,7 @@ const register = asyncHandler(async (req, res) => {
             username: user.username,
         },
         accessToken: user.accessToken,
-    } satisfies APIResponse<{ username: string }>);
+    } satisfies APIResponse<AuthUserResponse>);
 });
 
 const login = asyncHandler(async (req, res) => {
@@ -40,23 +50,24 @@ const login = asyncHandler(async (req, res) => {
 
     const user = await authService.login(body, req.log);
 
-    res.cookie("refreshToken", user.refreshToken, cookieOptions);
+    res.cookie("refreshToken", {username:user.username, refreshToken: user.refreshToken}, cookieOptions);
     res.status(200).json({
         status: "success",
         data: {
             username: user.username,
         },
         accessToken: user.accessToken,
-    } satisfies APIResponse<{ username: string }>);
+    } satisfies APIResponse<AuthUserResponse>);
 });
 
 const logout = asyncHandler(async (req, res) => {
-    const { refreshToken } = req.cookies;
+    const refreshToken = req.cookies;
     if (!refreshToken) {
         throw new AppError("No refresh token provided", 401);
     }
 
     await authService.logout(refreshToken, req.log);
+    res.clearCookie("refreshToken", clearCookieOptions);
 
     res.sendStatus(204);
 });
@@ -73,12 +84,12 @@ const resetPassword = asyncHandler(async (req, res) => {
         data: {
             username,
         },
-    } satisfies APIResponse<{ username: string }>);
+    } satisfies APIResponse<AuthUserResponse>);
 });
 
 const token = asyncHandler(async (req, res) => {
-    const { refreshToken } = req.cookies;
-    if (!refreshToken) {
+    const refreshToken:string = req.cookies;
+    if  (!refreshToken) {
         throw new AppError("No refresh token provided", 401);
     }
 
@@ -91,7 +102,7 @@ const token = asyncHandler(async (req, res) => {
             username: user.username,
         },
         accessToken: user.accessToken,
-    } satisfies APIResponse<{ username: string }>);
+    } satisfies APIResponse<AuthUserResponse>);
 });
 
 export { register, login, logout, token, resetPassword };

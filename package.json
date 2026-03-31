@@ -7,7 +7,9 @@
     "scripts": {
         "dev": "tsx watch src/server.ts",
         "build": "tsc",
-        "start": "node dist/server.js"
+        "start": "node dist/server.js",
+        "migration": "npx sequelize-cli db:migrate",
+        "undo": "npx sequelize-cli db:undo"
     },
     "repository": {
         "type": "git",
@@ -46,6 +48,7 @@
         "@types/express": "^5.0.6",
         "@types/jsonwebtoken": "^9.0.10",
         "@types/sequelize": "^4.28.20",
+        "typescript": "^5.8.2",
         "tsx": "^4.21.0"
     }
 }

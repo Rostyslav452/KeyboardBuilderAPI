@@ -1,14 +1,20 @@
 import rateLimiter from "express-rate-limit";
-import AppError from "../core/appError.js";
+import AppError from "../core/AppError.js";
 import { env } from "../config/env.js";
-import logger from "../utils/logger.js";
+import logger from "../config/logger.js";
 import { Request, Response, NextFunction } from "express";
 
 const rlLogger = logger.child({ context: "RateLimiter" });
+const globalRateLimitWindowMs = 1000 * 60 * 5;
+const globalRateLimitLimit = 1000;
+const loginRateLimitWindowMs = 1000 * 60 * 5;
+const loginRateLimitLimit = 5;
+const registerRateLimitWindowMs = 1000 * 60 * 30;
+const registerRateLimitLimit = 3;
 
 const globalRateLimiter = rateLimiter({
-    windowMs: 1000 * 60 * 5,
-    limit: 1000,
+    windowMs: globalRateLimitWindowMs,
+    limit: globalRateLimitLimit,
     standardHeaders: "draft-7",
     legacyHeaders: false,
     handler: (req: Request, res: Response, next: NextFunction) => {
@@ -21,36 +27,37 @@ const globalRateLimiter = rateLimiter({
 });
 
 const loginRateLimiter = rateLimiter({
-    windowMs: 1000 * 60 * 5,
-    limit: 5,
+    windowMs: loginRateLimitWindowMs,
+    limit: loginRateLimitLimit,
     standardHeaders: "draft-7",
     legacyHeaders: false,
     skipSuccessfulRequests: true,
     handler: (req: Request, res: Response, next: NextFunction) => {
         req.log.warn(
-            {
-                user: req.user ? req.user.username : "guest",
-            },
-            "Too many login attempt",
+           {
+               user: req.user ? req.user.username : "guest",
+           },
+           "Too many login attempt",
         );
         next(new AppError("Too many login attempt, try again later", 429));
     },
 });
 
 const registerRateLimiter = rateLimiter({
-    windowMs: 1000 * 60 * 30,
-    limit: 3,
+    windowMs: registerRateLimitWindowMs,
+    limit: registerRateLimitLimit,
     standardHeaders: "draft-7",
     legacyHeaders: false,
     skipSuccessfulRequests: false,
     handler: (req: Request, res: Response, next: NextFunction) => {
         req.log.warn(
-            {
-                windowMs: req.rateLimit.windowMs,
-                limit: req.rateLimit.limit,
-                user: req.user ? req.user.username : "guest",
-            },
-            "Too many register attempt",
+           {
+               windowMs: registerRateLimitWindowMs,
+               limit: req.rateLimit?.limit ?? registerRateLimitLimit,
+               remaining: req.rateLimit?.remaining,
+               user: req.user ? req.user.username : "guest",
+           },
+           "Too many register attempt",
         );
         next(new AppError("Too many register attempt, try again later", 429));
     },

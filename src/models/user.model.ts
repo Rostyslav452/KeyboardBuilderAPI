@@ -6,6 +6,7 @@ import {
     InferCreationAttributes,
 } from "sequelize";
 import bcrypt from "bcryptjs";
+import { env } from "../config/env.js";
 
 export class User extends Model<InferAttributes<User>, InferCreationAttributes<User>> {
     declare username: string;
@@ -39,11 +40,9 @@ export const initUserModel = (sequelize: Sequelize) => {
             hooks: {
                 beforeSave: async (user) => {
                     if (user.password && user.changed("password")) {
-                        const saltRounds =
-                            Number(process.env.SALT_ROUNDS) || 10;
                         user.password = await bcrypt.hash(
                             user.password,
-                            saltRounds,
+                           env.SALT_ROUNDS,
                         );
                     }
                 },

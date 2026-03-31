@@ -4,12 +4,7 @@ dotenv.config();
 
 import { z } from "zod";
 
-const envSchema = z.object({
-    DB_NAME: z.string().min(1).max(32),
-    DB_USERNAME: z.string().min(1).max(32),
-    DB_PASSWORD: z.string().min(1),
-    DB_HOST: z.string().min(1),
-    PORT: z.coerce.number().int().min(1).max(65535).default(3000),
+const commonEnvSchema = z.object({
     NODE_ENV: z
         .enum(["development", "production", "test"])
         .default("production"),
@@ -25,6 +20,17 @@ const envSchema = z.object({
     REFRESH_TOKEN_SECRET: z.string().min(1),
     EXPIRES_IN_REFRESH_TOKEN: z.coerce.number().int().default(30),
 });
+
+const mysqlEnvSchema = z.object({
+    DB_NAME: z.string().min(1).max(32),
+    DB_USERNAME: z.string().min(1).max(32),
+    DB_PASSWORD: z.string().min(1),
+    DB_HOST: z.string().min(1),
+    PORT: z.coerce.number().int().min(1).max(65535).default(3000),
+});
+
+
+const envSchema = commonEnvSchema.merge(mysqlEnvSchema);
 
 export type EnvConfig = z.infer<typeof envSchema>;
 

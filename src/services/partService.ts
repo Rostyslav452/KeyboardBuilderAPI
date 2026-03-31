@@ -1,5 +1,5 @@
 import db from "../models/index.js";
-import AppError from "../core/appError.js";
+import AppError from "../core/AppError.js";
 import { Part } from "../models/part.model.js";
 import { QueryPaginationDto } from "../schemas/commonSchema.js";
 import { CreatePartDto, UpdatePartDto } from "../schemas/partSchema.js";

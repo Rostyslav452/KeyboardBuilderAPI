@@ -1,6 +1,6 @@
 import express from "express";
 import * as buildsController from "../controllers/buildsController.js";
-import validate from "../middlewares/validateMiddleware.js";
+import validate from "../middlewares/validation.js";
 import {
     createBuildSchema,
     updateBuildSchema,
@@ -9,7 +9,7 @@ import {
     paramsIdSchema,
     queryPaginationSchema,
 } from "../schemas/commonSchema.js";
-import authentication from "../middlewares/authMiddleware.js";
+import authentication from "../middlewares/authentication.js";
 
 const router = express.Router();
 
@@ -21,6 +21,8 @@ router
         validate(createBuildSchema),
         buildsController.createBuild,
     );
+
+router.route("/user").get(authentication, buildsController.getBuildsByUser);
 
 router
     .route("/:id")
@@ -35,9 +37,5 @@ router
         validate(paramsIdSchema),
         buildsController.deleteBuild,
     );
-
-router
-    .route("/user")
-    .get(authentication, buildsController.getBuildsByUser);
 
 export default router;
