@@ -7,7 +7,7 @@ import {
     LoginDto,
     RegisterDto,
     ResetPasswordDto,
-} from "../schemas/authSchema.js";
+} from "../schemas/auth.schema.js";
 import { Logger } from "pino";
 import { validateJWTPayload } from "../utils/jwt.util.js";
 
@@ -151,19 +151,21 @@ class AuthService {
 
         return username;
     }
-// revise
-    async logout(refreshToken:string, log: Logger): Promise<void> {
-        const data = jwt.verify(refreshToken, env.REFRESH_TOKEN_SECRET,{ ignoreExpiration: true });
+    // revise
+    async logout(refreshToken: string, log: Logger): Promise<void> {
+        const data = jwt.verify(refreshToken, env.REFRESH_TOKEN_SECRET, {
+            ignoreExpiration: true,
+        });
 
         const payload = validateJWTPayload(data);
         log.info({ payload }, "Payload extracted successfully");
 
-        const allTokensByUser =  await db.Token.findAll({
-            where: {username:payload.username},
-        })
+        const allTokensByUser = await db.Token.findAll({
+            where: { username: payload.username },
+        });
 
-        for(const token of allTokensByUser) {
-            if(await token.compareToken(refreshToken)){
+        for (const token of allTokensByUser) {
+            if (await token.compareToken(refreshToken)) {
                 await token.destroy();
                 break;
             }
@@ -175,44 +177,53 @@ class AuthService {
     async token(oldRefreshToken: string, log: Logger): Promise<AuthResponse> {
         log.info("Refresh token generation attempt");
 
-        let data:unknown = null;
+        let data: unknown = null;
         try {
-             data = jwt.verify(oldRefreshToken, env.REFRESH_TOKEN_SECRET,);
+            data = jwt.verify(oldRefreshToken, env.REFRESH_TOKEN_SECRET);
         } catch (err) {
-        throw new AppError(
-           "Invalid or expired session. Please log in.",
-           401,
-           err,
-        );
-    }
+            throw new AppError(
+                "Invalid or expired session. Please log in.",
+                401,
+                err,
+            );
+        }
         const payload = validateJWTPayload(data);
         log.info(payload, "Refresh token verify successfully");
 
         const allTokensByUser = await db.Token.findAll({
-                where: { username: payload.username },
-            });
+            where: { username: payload.username },
+        });
 
-            if (allTokensByUser.length === 0) {
-                throw new AppError("User with provided username not exist in Database", 401);
+        if (allTokensByUser.length === 0) {
+            throw new AppError(
+                "User with provided username not exist in Database",
+                401,
+            );
+        }
+
+        let refreshToken: string = "";
+        let isMatch = false;
+        for (const token of allTokensByUser) {
+            isMatch = await token.compareToken(oldRefreshToken);
+            if (isMatch) {
+                refreshToken = await this.#generateAndSaveRefreshToken(
+                    payload,
+                    log,
+                );
+                await token.destroy();
+                break;
             }
+        }
 
-            let refreshToken: string = "";
-            let isMatch= false;
-            for(const token of allTokensByUser) {
-                isMatch = await token.compareToken(oldRefreshToken)
-                if(isMatch) {
-                    refreshToken = await this.#generateAndSaveRefreshToken(payload, log);
-                    await token.destroy();
-                    break;
-                }
-            }
+        if (!isMatch) {
+            throw new AppError(
+                "User with provided token not exist in Database",
+                401,
+            );
+        }
 
-            if (!isMatch) {
-                throw new AppError("User with provided token not exist in Database", 401);
-            }
-
-            const accessToken = this.#generateAccessToken(payload, log);
-            return { ...payload, accessToken, refreshToken };
+        const accessToken = this.#generateAccessToken(payload, log);
+        return { ...payload, accessToken, refreshToken };
     }
 }
 

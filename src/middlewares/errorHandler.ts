@@ -48,7 +48,7 @@ function toErrorLike (err:unknown):ErrorLike {
     }
 }
 
-const sendErrorDev = (err: any, res: Response) => {
+const sendErrorDev = (err: ErrorLike, res: Response) => {
     res.status(err.statusCode).json({
         status: err.status,
         message: err.message,
@@ -57,7 +57,7 @@ const sendErrorDev = (err: any, res: Response) => {
     });
 };
 
-const sendErrorProd = (err: any, res: Response) => {
+const sendErrorProd = (err: ErrorLike, res: Response) => {
     if (err.isOperational) {
         res.status(err.statusCode).json({
             status: err.status,
@@ -80,9 +80,9 @@ const errorHandler = (
     const normalized = toErrorLike(err);
 
     if (env.NODE_ENV === "development") {
-        sendErrorDev(err, res);
+        sendErrorDev(normalized, res);
     } else {
-        sendErrorProd(err, res);
+        sendErrorProd(normalized, res);
     }
 
     const log = req.log || logger;

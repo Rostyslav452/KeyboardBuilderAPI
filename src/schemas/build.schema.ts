@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { paramsIdSchema } from "./commonSchema.js";
+import { paramsIdSchema } from "./common.schema.js";
 
 const buildCoreSchema = z.object({
     name: z

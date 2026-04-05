@@ -3,9 +3,7 @@ version: '3'
 services:
   app:
     build: .
-    container_name: my_backend_api
-    ports:
-      - "3000:3000"
+    container_name: mechanical_keyboard_builder_api
     env_file:
       - .env
     depends_on:
@@ -13,21 +11,62 @@ services:
     environment:
       - DB_HOST=db
     networks:
-      - public_net
       - private_net
+      - public_net
     command: sh -c "sleep 15 && npm run migration && npm start"
   db:
     image: mysql
     ports:
       - "3306:3306"
+    restart: always 
     networks:
       - private_net
     environment: 
       - MYSQL_DATABASE=${DB_NAME}
-#      - MYSQL_USER=${DB_USERNAME}
+#      - MYSQL_USER=${DB_USERNAME} для юзера в бд, по замовчуванню, ROOT
 #      - MYSQL_PASSWORD=${DB_PASSWORD}
       - MYSQL_ROOT_PASSWORD=${DB_PASSWORD}
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro # :ro — тільки читання
+    networks:
+      - public_net
+    depends_on:
+      - app
 
 networks:
   public_net:
   private_net:
+
+
+# services:
+#   app:
+#     build: .
+#     container_name: my_backend_api
+#     ports:
+#       - "3000:3000"
+#     env_file:
+#       - .env
+#     depends_on:
+#       - db
+#     environment:
+#       - DB_HOST=db
+#     networks:
+#       - public_net
+#       - private_net
+#     command: sh -c "sleep 15 && npm run migration && npm start"
+#   db:
+#     image: mysql
+#     ports:
+#       - "3306:3306"
+#     networks:
+#       - private_net
+#     environment: 
+#       - MYSQL_DATABASE=${DB_NAME}
+# #      - MYSQL_USER=${DB_USERNAME}
+# #      - MYSQL_PASSWORD=${DB_PASSWORD}
+#       - MYSQL_ROOT_PASSWORD=${DB_PASSWORD}

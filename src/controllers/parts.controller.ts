@@ -1,9 +1,9 @@
-import partService from "../services/partService.js";
+import partService from "../services/part.service.js";
 import asyncHandler from "../utils/asyncHandler.js";
-import { QueryPaginationDto } from "../schemas/commonSchema.js";
+import { ParamsIdDto, QueryPaginationDto } from "../schemas/common.schema.js";
 import { APIResponse } from "../types/api.type.js";
 import { Part } from "../models/part.model.js";
-import { CreatePartDto, UpdatePartDto } from "../schemas/partSchema.js";
+import { CreatePartDto, UpdatePartDto } from "../schemas/part.schema.js";
 
 const getAllParts = asyncHandler(async (req, res, next) => {
     const query = res.locals.query as QueryPaginationDto;
@@ -16,7 +16,7 @@ const getAllParts = asyncHandler(async (req, res, next) => {
 });
 
 const getPartById = asyncHandler(async (req, res, next) => {
-    const id = res.locals.params.id as string;
+    const { id } = res.locals.params as ParamsIdDto;
     const part = await partService.getPartById(id);
 
     res.status(200).json({
@@ -26,17 +26,17 @@ const getPartById = asyncHandler(async (req, res, next) => {
 });
 
 const createPart = asyncHandler(async (req, res, next) => {
-    const body = res.locals.body as CreatePartDto;
+    const body = res.locals.body as CreatePartDto[];
     const part = await partService.createPart(body);
 
     res.status(201).json({
         status: "success",
         data: part,
-    } satisfies APIResponse<Part>);
+    } satisfies APIResponse<Part[]>);
 });
 
 const updatePart = asyncHandler(async (req, res, next) => {
-    const id = res.locals.params.id as string;
+    const { id } = res.locals.params as ParamsIdDto;
     const body = res.locals.body as UpdatePartDto;
 
     const part = await partService.updatePart(id, body);
@@ -48,7 +48,7 @@ const updatePart = asyncHandler(async (req, res, next) => {
 });
 
 const deletePart = asyncHandler(async (req, res, next) => {
-    const id = res.locals.params.id as string;
+    const { id } = res.locals.params as ParamsIdDto;
     await partService.deletePart(id);
 
     res.sendStatus(204);

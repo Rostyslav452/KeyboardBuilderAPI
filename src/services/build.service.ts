@@ -1,8 +1,8 @@
 import db from "../models/index.js";
 import AppError from "../core/AppError.js";
 import { Build } from "../models/build.model.js";
-import { CreateBuildDto, UpdateBuildDto } from "../schemas/buildSchema.js";
-import { QueryPaginationDto } from "../schemas/commonSchema.js";
+import { CreateBuildDto, UpdateBuildDto } from "../schemas/build.schema.js";
+import { QueryPaginationDto } from "../schemas/common.schema.js";
 
 class BuildService {
     async getBuildById(id: string): Promise<Build> {

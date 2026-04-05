@@ -9,7 +9,9 @@
         "build": "tsc",
         "start": "node dist/server.js",
         "migration": "npx sequelize-cli db:migrate",
-        "undo": "npx sequelize-cli db:undo"
+        "undo": "npx sequelize-cli db:undo",
+        "seed": "npx sequelize-cli db:seed:all",
+        "seed:undo": "npx sequelize-cli db:seed:undo:all"
     },
     "repository": {
         "type": "git",

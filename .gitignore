@@ -1,7 +1,7 @@
-/bugs
+bugs
 .env
-/node_modules
+node_modules
 npm-debug.log
-.idea/
-/logs
-/dist
+.idea
+logs
+dist

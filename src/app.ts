@@ -6,13 +6,15 @@ import cookieParser from "cookie-parser";
 import corsOptions from "./config/cors.js";
 import AppError from "./core/AppError.js";
 import errorHandler from "./middlewares/errorHandler.js";
-import authRouter from "./routers/authRouter.js";
-import partsRouter from "./routers/partsRouter.js";
-import buildsRouter from "./routers/buildsRouter.js";
+import authRouter from "./routers/auth.router.js";
+import partsRouter from "./routers/parts.router.js";
+import buildsRouter from "./routers/builds.router.js";
 import { globalRateLimiter } from "./middlewares/rateLimiter.js";
-import  requestLogger  from "./middlewares/requestLogger.js";
+import requestLogger from "./middlewares/requestLogger.js";
 
 const app = express();
+
+app.set("trust proxy", 1);
 
 app.use(helmet());
 
@@ -29,7 +31,7 @@ app.use("/api/v1/parts", partsRouter);
 app.use("/api/v1/builds", buildsRouter);
 
 app.all(/(.*)/, (req, res, next) => {
-   next(new AppError(`Can't find ${req.originalUrl} on this server!`, 404));
+    next(new AppError(`Can't find ${req.originalUrl} on this server!`, 404));
 });
 
 app.use(errorHandler);

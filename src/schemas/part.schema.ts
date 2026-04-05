@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { paramsIdSchema } from "./commonSchema.js";
+import { paramsIdSchema } from "./common.schema.js";
 
 const FormFactors = ["60%", "65%", "75%", "TKL", "Full-size", "96%"];
 const SwitchTypes = ["Linear", "Tactile", "Clicky", "Silent"];
@@ -44,7 +44,7 @@ const keycapSpecs = z.object({
     language: z.array(z.string()), // ["EN", "UA"]
 });
 
-const createPartSchema = z.object({
+const createPartSchema = z.array(z.object({
     body: z.discriminatedUnion("type", [
         commonFields.extend({
             type: z.literal("switch"),
@@ -66,7 +66,7 @@ const createPartSchema = z.object({
             specs: keycapSpecs,
         }),
     ]),
-});
+}));
 
 const updatePartSchema = z.object({
     ...paramsIdSchema.shape,
@@ -93,7 +93,7 @@ const updatePartSchema = z.object({
     ]),
 });
 
-type CreatePartDto = z.infer<typeof createPartSchema>["body"];
+type CreatePartDto = z.infer<typeof createPartSchema>[number]["body"];
 type UpdatePartDto = z.infer<typeof updatePartSchema>["body"];
 
 export { CreatePartDto, UpdatePartDto, createPartSchema, updatePartSchema };

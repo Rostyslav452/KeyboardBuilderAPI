@@ -23,7 +23,7 @@ const validate=
 
             req.log.warn(
                 {
-                    err: result.error.flatten(),
+                    err: result.error.format(),
                 },
                 "Validation error",
             );

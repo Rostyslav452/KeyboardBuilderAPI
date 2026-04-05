@@ -4,8 +4,8 @@ import {
     loginSchema,
     registerSchema,
     resetPasswordSchema,
-} from "../schemas/authSchema.js";
-import * as authController from "../controllers/authController.js";
+} from "../schemas/auth.schema.js";
+import * as authController from "../controllers/auth.controller.js";
 import {
     loginRateLimiter,
     registerRateLimiter,

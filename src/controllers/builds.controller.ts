@@ -1,10 +1,9 @@
 import asyncHandler from "../utils/asyncHandler.js";
-import buildService from "../services/buildService.js";
+import buildService from "../services/build.service.js";
 import { Build } from "../models/build.model.js";
 import { APIResponse } from "../types/api.type.js";
-import { CreateBuildDto, UpdateBuildDto } from "../schemas/buildSchema.js";
-import { QueryPaginationDto } from "../schemas/commonSchema.js";
-import { JWTPayload } from "../types/jwt.type.js";
+import { CreateBuildDto, UpdateBuildDto } from "../schemas/build.schema.js";
+import { ParamsIdDto, QueryPaginationDto } from "../schemas/common.schema.js";
 
 const getAllBuilds = asyncHandler(async (req, res, next) => {
     const query = res.locals.query as QueryPaginationDto;
@@ -17,7 +16,7 @@ const getAllBuilds = asyncHandler(async (req, res, next) => {
 });
 
 const getBuildById = asyncHandler(async (req, res, next) => {
-    const id = res.locals.params.id as string;
+    const { id } = res.locals.params as ParamsIdDto;
     const build = await buildService.getBuildById(id);
 
     res.status(200).json({
@@ -39,7 +38,7 @@ const createBuild = asyncHandler(async (req, res, next) => {
 });
 
 const updateBuild = asyncHandler(async (req, res, next) => {
-    const id = res.locals.params.id as string;
+    const { id } = res.locals.params as ParamsIdDto;
     const body = res.locals.body as UpdateBuildDto;
     const username = req.user!.username;
 
@@ -51,7 +50,7 @@ const updateBuild = asyncHandler(async (req, res, next) => {
 });
 
 const deleteBuild = asyncHandler(async (req, res, next) => {
-    const id = res.locals.params.id as string;
+    const { id } = res.locals.params as ParamsIdDto;
     const username = req.user!.username;
 
     await buildService.deleteBuild(id, username);

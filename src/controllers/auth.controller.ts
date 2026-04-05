@@ -1,15 +1,15 @@
-import authService from "../services/authService.js";
+import authService from "../services/auth.service.js";
 import asyncHandler from "../utils/asyncHandler.js";
 import { env } from "../config/env.js";
 import { CookieOptions } from "express";
-import AppError from "../core/AppError.js";
 import { APIResponse } from "../types/api.type.js";
 import {
     LoginDto,
     RegisterDto,
     ResetPasswordDto,
-} from "../schemas/authSchema.js";
+} from "../schemas/auth.schema.js";
 import { JWTPayload } from "../types/jwt.type.js";
+import { getRefreshTokenOrThrow } from "@/utils/cookieParser.utils.js";
 
 type AuthUserResponse = {
     username: string;
@@ -33,6 +33,7 @@ const clearCookieOptions: CookieOptions = {
 
 const register = asyncHandler(async (req, res) => {
     const body = res.locals.body as RegisterDto;
+
     const user = await authService.register(body, req.log);
 
     res.cookie("refreshToken", user.refreshToken, cookieOptions);
@@ -50,7 +51,7 @@ const login = asyncHandler(async (req, res) => {
 
     const user = await authService.login(body, req.log);
 
-    res.cookie("refreshToken", {username:user.username, refreshToken: user.refreshToken}, cookieOptions);
+    res.cookie("refreshToken", user.refreshToken, cookieOptions);
     res.status(200).json({
         status: "success",
         data: {
@@ -61,14 +62,11 @@ const login = asyncHandler(async (req, res) => {
 });
 
 const logout = asyncHandler(async (req, res) => {
-    const refreshToken = req.cookies;
-    if (!refreshToken) {
-        throw new AppError("No refresh token provided", 401);
-    }
+    const refreshToken = getRefreshTokenOrThrow(req);
 
     await authService.logout(refreshToken, req.log);
-    res.clearCookie("refreshToken", clearCookieOptions);
 
+    res.clearCookie("refreshToken", clearCookieOptions);
     res.sendStatus(204);
 });
 
@@ -88,10 +86,7 @@ const resetPassword = asyncHandler(async (req, res) => {
 });
 
 const token = asyncHandler(async (req, res) => {
-    const refreshToken:string = req.cookies;
-    if  (!refreshToken) {
-        throw new AppError("No refresh token provided", 401);
-    }
+    const refreshToken = getRefreshTokenOrThrow(req);
 
     const user = await authService.token(refreshToken, req.log);
 

@@ -1,8 +1,8 @@
 import db from "../models/index.js";
 import AppError from "../core/AppError.js";
 import { Part } from "../models/part.model.js";
-import { QueryPaginationDto } from "../schemas/commonSchema.js";
-import { CreatePartDto, UpdatePartDto } from "../schemas/partSchema.js";
+import { QueryPaginationDto } from "../schemas/common.schema.js";
+import { CreatePartDto, UpdatePartDto } from "../schemas/part.schema.js";
 
 class PartService {
     async getPartById(id: string): Promise<Part> {
@@ -27,8 +27,8 @@ class PartService {
         });
     }
 
-    async createPart(data: CreatePartDto): Promise<Part> {
-        return await db.Part.create(data);
+    async createPart(data: CreatePartDto[]): Promise<Part[]> {
+        return await db.Part.bulkCreate(data);
     }
 
     async updatePart(id: string, updatedData: UpdatePartDto): Promise<Part> {

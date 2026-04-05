@@ -124,7 +124,23 @@ module.exports = {
             });
         });
 
-        return queryInterface.bulkInsert("parts", parts);
+        const existingParts = await queryInterface.sequelize.query(
+            `SELECT name FROM parts WHERE name IN (:partNames)`,
+            {
+                replacements: { partNames: parts.map((part) => part.name) },
+                type: Sequelize.QueryTypes.SELECT,
+            },
+        );
+
+        const existingNames = new Set(existingParts.map((part) => part.name));
+
+        const newParts = parts.filter((part) => !existingNames.has(part.name));
+
+        if (newParts.length === 0) {
+            return;
+        }
+
+        return queryInterface.bulkInsert("parts", newParts);
     },
 
     down: async (queryInterface, Sequelize) => {
