@@ -7,7 +7,7 @@ type ValidateRequestData = {
    query?: unknown;
    params?: unknown;
 }
-const validate=
+const validate =
    <T extends ValidateRequestData> (schema: z.ZodType<T>) =>
     (req: Request, res: Response, next: NextFunction) => {
         const result = schema.safeParse({

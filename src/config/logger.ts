@@ -3,22 +3,22 @@ import { env } from "./env.js";
 
 const transport = pino.transport({
     targets: [
-        {
-            target: "pino/file",
-            level: "error",
-            options: {
-                mkdir: true,
-                destination: "./logs/error.log",
-            },
-        },
-        {
-            target: "pino/file",
-            level: "info",
-            options: {
-                mkdir: true,
-                destination: "./logs/info.log",
-            },
-        },
+        // {
+        //     target: "pino/file",
+        //     level: "error",
+        //     options: {
+        //         mkdir: true,
+        //         destination: "./logs/error.log",
+        //     },
+        // },
+        // {
+        //     target: "pino/file",
+        //     level: "info",
+        //     options: {
+        //         mkdir: true,
+        //         destination: "./logs/info.log",
+        //     },
+        // },
         {
             target: "pino-pretty",
             level: "debug",

@@ -1,4 +1,4 @@
-import AppError from "@/core/AppError.js";
+import AppError from "../core/AppError.js";
 import { Request } from "express";
 
 export const getRefreshTokenOrThrow = (req: Request): string => {

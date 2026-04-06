@@ -9,7 +9,7 @@ import {
     ResetPasswordDto,
 } from "../schemas/auth.schema.js";
 import { JWTPayload } from "../types/jwt.type.js";
-import { getRefreshTokenOrThrow } from "@/utils/cookieParser.utils.js";
+import { getRefreshTokenOrThrow } from "../utils/cookieParser.utils.js";
 
 type AuthUserResponse = {
     username: string;

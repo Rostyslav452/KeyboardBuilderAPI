@@ -44,8 +44,7 @@ const keycapSpecs = z.object({
     language: z.array(z.string()), // ["EN", "UA"]
 });
 
-const createPartSchema = z.array(z.object({
-    body: z.discriminatedUnion("type", [
+const partBodySchema = z.discriminatedUnion("type", [
         commonFields.extend({
             type: z.literal("switch"),
             specs: switchSpecs,
@@ -65,35 +64,38 @@ const createPartSchema = z.array(z.object({
             type: z.literal("keycap"),
             specs: keycapSpecs,
         }),
-    ]),
-}));
+    ]);
+
+const createPartSchema = z.object({
+    body: z.array(partBodySchema),
+});
 
 const updatePartSchema = z.object({
     ...paramsIdSchema.shape,
     body: z.discriminatedUnion("type", [
         commonFields.partial().extend({
             type: z.literal("switch"),
-            specs: switchSpecs,
+            specs: switchSpecs.partial().optional(),
         }),
 
         commonFields.partial().extend({
             type: z.literal("case"),
-            specs: caseSpecs,
+            specs: caseSpecs.partial().optional(),
         }),
 
         commonFields.partial().extend({
             type: z.literal("pcb"),
-            specs: pcbSpecs,
+            specs: pcbSpecs.partial().optional(),
         }),
 
         commonFields.partial().extend({
             type: z.literal("keycap"),
-            specs: keycapSpecs,
+            specs: keycapSpecs.partial().optional(),
         }),
     ]),
 });
 
-type CreatePartDto = z.infer<typeof createPartSchema>[number]["body"];
+type CreatePartDto = z.infer<typeof createPartSchema>["body"][number];
 type UpdatePartDto = z.infer<typeof updatePartSchema>["body"];
 
 export { CreatePartDto, UpdatePartDto, createPartSchema, updatePartSchema };
