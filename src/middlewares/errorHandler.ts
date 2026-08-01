@@ -11,41 +11,44 @@ type ErrorLike = {
     stack?: string;
 };
 
-function isRecord(value:unknown): value is Record<string,unknown>{
+function isRecord(value: unknown): value is Record<string, unknown> {
     return value === "object" && value !== null;
 }
 
-function toErrorLike (err:unknown):ErrorLike {
-    if(err instanceof AppError) {
+function toErrorLike(err: unknown): ErrorLike {
+    if (err instanceof AppError) {
         return {
-            statusCode:err.statusCode,
+            statusCode: err.statusCode,
             status: err.status as "fail" | "error",
             message: err.message,
             isOperational: true,
             stack: err.stack,
-        } ;
+        };
     }
-    if(err instanceof Error) {
-        const statusCode = (
-           isRecord(err)&&
-           typeof err.statusCode === "number" &&
-           Number.isFinite(err.statusCode)
-        )?err.statusCode:500;
-        const status = statusCode>=400 && statusCode <500?"fail": "error";
+    if (err instanceof Error) {
+        const statusCode =
+            (
+                isRecord(err) &&
+                typeof err.statusCode === "number" &&
+                Number.isFinite(err.statusCode)
+            ) ?
+                err.statusCode
+            :   500;
+        const status = statusCode >= 400 && statusCode < 500 ? "fail" : "error";
         return {
             statusCode,
             status,
             message: err.message || "Unexpected error",
             isOperational: false,
             stack: err.stack,
-        } ;
+        };
     }
     return {
         statusCode: 500,
         status: "error",
         message: typeof err === "string" ? err : "Unknown error",
         isOperational: false,
-    }
+    };
 }
 
 const sendErrorDev = (err: ErrorLike, res: Response) => {
@@ -87,15 +90,15 @@ const errorHandler = (
 
     const log = req.log || logger;
     log.error(
-       {
-           message: normalized.message,
-           statusCode: normalized.statusCode,
-           isOperational: normalized.isOperational,
-           path: req.originalUrl,
-           method: req.method,
-           stack: normalized.stack,
-       },
-       "Request error",
+        {
+            message: normalized.message,
+            statusCode: normalized.statusCode,
+            isOperational: normalized.isOperational,
+            path: req.originalUrl,
+            method: req.method,
+            stack: normalized.stack,
+        },
+        "Request error",
     );
 };
 

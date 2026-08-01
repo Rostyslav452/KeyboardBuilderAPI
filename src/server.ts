@@ -1,6 +1,6 @@
 import { env } from "./config/env.js";
 import app from "./app.js";
-import sequelize from "./core/db.connection.js";
+import sequelize from "./config/db.connection.js";
 import logger from "./config/logger.js";
 import type { Server } from "node:http";
 

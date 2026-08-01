@@ -1,6 +1,6 @@
-import { env } from "../config/env.js";
+import { env } from "./env.js";
 import { Sequelize } from "sequelize";
-import logger from "../config/logger.js";
+import logger from "./logger.js";
 
 const dbLogger = logger.child({ module: "DATABASE" });
 

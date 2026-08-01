@@ -1,5 +1,5 @@
 import { Sequelize } from "sequelize";
-import sequelize from "../core/db.connection.js";
+import sequelize from "../config/db.connection.js";
 
 import { User, initUserModel } from "./user.model.js";
 import { Part, initPartModel } from "./part.model.js";
