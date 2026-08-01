@@ -1,0 +1,8 @@
+/dist
+.env
+/.idea
+/bugs
+/logs
+/node_modules
+/test
+.gitignore

@@ -1,4 +1,8 @@
-/bugs
+bugs
 .env
-/node_modules
+node_modules
 npm-debug.log
+.idea
+.vscode
+logs
+dist
