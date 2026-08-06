@@ -1,15 +1,11 @@
-import db from "../models/index.js";
-import AppError from "../core/AppError.js";
-import { env } from "../config/env.js";
-import jwt from "jsonwebtoken";
-import { JWTPayload } from "../types/jwt.type.js";
-import {
-    LoginDto,
-    RegisterDto,
-    ResetPasswordDto,
-} from "../schemas/auth.schema.js";
-import { Logger } from "pino";
-import { validateJWTPayload } from "../utils/jwt.util.js";
+import db from '../models/index.js';
+import AppError from '../core/AppError.js';
+import { env } from '../config/env.js';
+import jwt from 'jsonwebtoken';
+import { JWTPayload } from '../types/jwt.type.js';
+import { LoginDto, RegisterDto, ResetPasswordDto } from '../schemas/auth.schema.js';
+import { Logger } from 'pino';
+import { validateJWTPayload } from '../utils/jwt.util.js';
 
 export interface AuthResponse {
     username: string;
@@ -18,11 +14,8 @@ export interface AuthResponse {
 }
 
 class AuthService {
-    async #generateAndSaveRefreshToken(
-        payload: JWTPayload,
-        log: Logger,
-    ): Promise<string> {
-        log.info({ payload }, "Generate refresh token attempt started ");
+    async #generateAndSaveRefreshToken(payload: JWTPayload, log: Logger): Promise<string> {
+        log.info({ payload }, 'Generate refresh token attempt started ');
         const expiresInDays = env.EXPIRES_IN_REFRESH_TOKEN;
         const expiresInMs = expiresInDays * 24 * 60 * 60 * 1000;
 
@@ -36,19 +29,19 @@ class AuthService {
             expiresAt: new Date(Date.now() + expiresInMs),
         });
 
-        log.info({ payload }, "Refresh token generated and saved successfully");
+        log.info({ payload }, 'Refresh token generated and saved successfully');
 
         return token;
     }
 
     #generateAccessToken(payload: JWTPayload, log: Logger): string {
-        log.info({ payload }, "Generate access token attempt started ");
+        log.info({ payload }, 'Generate access token attempt started ');
 
         const token = jwt.sign(payload, env.ACCESS_TOKEN_SECRET, {
-            expiresIn: "2h",
+            expiresIn: '2h',
         });
 
-        log.info({ payload }, "Access token generated successful ");
+        log.info({ payload }, 'Access token generated successful ');
 
         return token;
     }
@@ -56,29 +49,23 @@ class AuthService {
     async register(user: RegisterDto, log: Logger): Promise<AuthResponse> {
         const { username, password } = user;
 
-        log.info({ username }, "Registration attempt started");
+        log.info({ username }, 'Registration attempt started');
 
         const candidate = await db.User.findByPk(username);
 
         if (candidate) {
-            log.warn({ username }, "Registration failed: User already exist");
-            throw new AppError(
-                `User with this username ${username} has already exist`,
-                409,
-            );
+            log.warn({ username }, 'Registration failed: User already exist');
+            throw new AppError(`User with this username ${username} has already exist`, 409);
         }
 
         await db.User.create({ username, password });
 
         const payload = { username }; //role: user, admin
 
-        const refreshToken = await this.#generateAndSaveRefreshToken(
-            payload,
-            log,
-        );
+        const refreshToken = await this.#generateAndSaveRefreshToken(payload, log);
         const accessToken = this.#generateAccessToken(payload, log);
 
-        log.info({ payload }, "Registration successful");
+        log.info({ payload }, 'Registration successful');
 
         return { ...payload, accessToken, refreshToken };
     }
@@ -86,57 +73,47 @@ class AuthService {
     async login(userData: LoginDto, log: Logger): Promise<AuthResponse> {
         const { username, password } = userData;
 
-        log.info({ username }, "Login attempt started");
+        log.info({ username }, 'Login attempt started');
         const user = await db.User.findByPk(username);
 
         if (!user) {
-            log.warn({ username }, "Login failed: User not found");
-            throw new AppError("Invalid credentials", 401);
+            log.warn({ username }, 'Login failed: User not found');
+            throw new AppError('Invalid credentials', 401);
         }
 
         const isMatch = await user.comparePassword(password);
 
         if (!isMatch) {
-            log.warn({ username }, "Login failed: Incorrect password");
-            throw new AppError("Invalid credentials", 401);
+            log.warn({ username }, 'Login failed: Incorrect password');
+            throw new AppError('Invalid credentials', 401);
         }
 
         const payload = { username };
         const accessToken = this.#generateAccessToken(payload, log);
-        const refreshToken = await this.#generateAndSaveRefreshToken(
-            payload,
-            log,
-        );
+        const refreshToken = await this.#generateAndSaveRefreshToken(payload, log);
 
-        log.info({ username }, "Login successful");
+        log.info({ username }, 'Login successful');
         return { ...payload, accessToken, refreshToken };
     }
 
-    async resetPassword(
-        body: ResetPasswordDto,
-        payload: JWTPayload,
-        log: Logger,
-    ): Promise<string> {
+    async resetPassword(body: ResetPasswordDto, payload: JWTPayload, log: Logger): Promise<string> {
         const { password, newPassword } = body;
         const { username } = payload;
 
-        log.info({ username }, "Reset password attempt started");
+        log.info({ username }, 'Reset password attempt started');
 
         const user = await db.User.findByPk(username);
 
         if (!user) {
-            log.warn({ username }, "Reset password failed: User not found");
-            throw new AppError("Invalid credentials", 401);
+            log.warn({ username }, 'Reset password failed: User not found');
+            throw new AppError('Invalid credentials', 401);
         }
 
         const isMatch = await user.comparePassword(password);
 
         if (!isMatch) {
-            log.warn(
-                { username },
-                "Reset password failed: Incorrect old password ",
-            );
-            throw new AppError("Invalid credentials", 401);
+            log.warn({ username }, 'Reset password failed: Incorrect old password ');
+            throw new AppError('Invalid credentials', 401);
         }
 
         await user.update({ password: newPassword });
@@ -147,7 +124,7 @@ class AuthService {
             },
         });
 
-        log.info({ username }, "Reset password successful");
+        log.info({ username }, 'Reset password successful');
 
         return username;
     }
@@ -158,7 +135,7 @@ class AuthService {
         });
 
         const payload = validateJWTPayload(data);
-        log.info({ payload }, "Payload extracted successfully");
+        log.info({ payload }, 'Payload extracted successfully');
 
         const allTokensByUser = await db.Token.findAll({
             where: { username: payload.username },
@@ -171,55 +148,42 @@ class AuthService {
             }
         }
 
-        log.info("Logout successful: token removed from DB");
+        log.info('Logout successful: token removed from DB');
     }
 
     async token(oldRefreshToken: string, log: Logger): Promise<AuthResponse> {
-        log.info("Refresh token generation attempt");
+        log.info('Refresh token generation attempt');
 
-        let data: unknown = null;
+        let data: unknown;
         try {
             data = jwt.verify(oldRefreshToken, env.REFRESH_TOKEN_SECRET);
         } catch (err) {
-            throw new AppError(
-                "Invalid or expired session. Please log in.",
-                401,
-                err,
-            );
+            throw new AppError('Invalid or expired session. Please log in.', 401, err);
         }
         const payload = validateJWTPayload(data);
-        log.info(payload, "Refresh token verify successfully");
+        log.info(payload, 'Refresh token verify successfully');
 
         const allTokensByUser = await db.Token.findAll({
             where: { username: payload.username },
         });
 
         if (allTokensByUser.length === 0) {
-            throw new AppError(
-                "User with provided username not exist in Database",
-                401,
-            );
+            throw new AppError('User with provided username not exist in Database', 401);
         }
 
-        let refreshToken: string = "";
+        let refreshToken: string = '';
         let isMatch = false;
         for (const token of allTokensByUser) {
             isMatch = await token.compareToken(oldRefreshToken);
             if (isMatch) {
-                refreshToken = await this.#generateAndSaveRefreshToken(
-                    payload,
-                    log,
-                );
+                refreshToken = await this.#generateAndSaveRefreshToken(payload, log);
                 await token.destroy();
                 break;
             }
         }
 
         if (!isMatch) {
-            throw new AppError(
-                "User with provided token not exist in Database",
-                401,
-            );
+            throw new AppError('User with provided token not exist in Database', 401);
         }
 
         const accessToken = this.#generateAccessToken(payload, log);

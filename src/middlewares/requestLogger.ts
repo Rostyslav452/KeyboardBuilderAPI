@@ -1,8 +1,8 @@
-import logger from "../config/logger.js";
-import {pinoHttp} from "pino-http";
-import crypto from "crypto";
-import { Request } from "express";
-import { IncomingMessage, ServerResponse } from "http";
+import logger from '../config/logger.js';
+import { pinoHttp } from 'pino-http';
+import crypto from 'crypto';
+import { Request } from 'express';
+import { IncomingMessage, ServerResponse } from 'http';
 
 const requestLogger = pinoHttp({
     logger: logger,
@@ -14,8 +14,8 @@ const requestLogger = pinoHttp({
             if (expressReq.body && Object.keys(expressReq.body).length > 0) {
                 safeBody = { ...expressReq.body };
 
-                if (safeBody.password) safeBody.password = "****";
-                if (safeBody.newPassword) safeBody.newPassword = "****";
+                if (safeBody.password) safeBody.password = '****';
+                if (safeBody.newPassword) safeBody.newPassword = '****';
             }
 
             return {
@@ -26,16 +26,13 @@ const requestLogger = pinoHttp({
             };
         },
     },
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     genReqId: (req: IncomingMessage, res: ServerResponse) => {
         return req.id || crypto.randomUUID();
     },
-    customLogLevel: (
-        req: IncomingMessage,
-        res: ServerResponse,
-        err?: Error,
-    ) => {
-        if (res.statusCode >= 500 || err) return "silent";
-        return "info";
+    customLogLevel: (req: IncomingMessage, res: ServerResponse, err?: Error) => {
+        if (res.statusCode >= 500 || err) return 'silent';
+        return 'info';
     },
 });
 

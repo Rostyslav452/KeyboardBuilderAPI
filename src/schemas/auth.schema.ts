@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { z } from 'zod';
 
 const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d@$!%*?&]+$/;
 
@@ -7,40 +7,40 @@ const registerSchema = z.object({
         .object({
             username: z
                 .string()
-                .min(3, "Username must be at least 3 character long")
-                .max(32, "Username is too long"),
+                .min(3, 'Username must be at least 3 character long')
+                .max(32, 'Username is too long'),
             password: z
                 .string()
-                .min(8, "Password must be at least 8 character long")
-                .refine((password) => passwordRegex.test(password)),
+                .min(8, 'Password must be at least 8 character long')
+                .refine(password => passwordRegex.test(password)),
             confirmPassword: z.string(),
         })
-        .refine((data) => data.password === data.confirmPassword, {
+        .refine(data => data.password === data.confirmPassword, {
             message: "Passwords don't mutch",
-            path: ["confirmPassword"],
+            path: ['confirmPassword'],
         }),
 });
 
 const loginSchema = z.object({
     body: z.object({
-        username: z.string().min(1, "Username is required"),
-        password: z.string().min(1, "Password is required"),
+        username: z.string().min(1, 'Username is required'),
+        password: z.string().min(1, 'Password is required'),
     }),
 });
 
 const resetPasswordSchema = z.object({
     body: z.object({
-        password: z.string().min(1, "Password is required"),
+        password: z.string().min(1, 'Password is required'),
         newPassword: z
             .string()
-            .min(8, "Password must be at least 8 character long")
-            .refine((password) => passwordRegex.test(password)),
+            .min(8, 'Password must be at least 8 character long')
+            .refine(password => passwordRegex.test(password)),
     }),
 });
 
-type LoginDto = z.infer<typeof loginSchema>["body"];
-type RegisterDto = z.infer<typeof registerSchema>["body"];
-type ResetPasswordDto = z.infer<typeof resetPasswordSchema>["body"];
+type LoginDto = z.infer<typeof loginSchema>['body'];
+type RegisterDto = z.infer<typeof registerSchema>['body'];
+type ResetPasswordDto = z.infer<typeof resetPasswordSchema>['body'];
 
 export {
     LoginDto,

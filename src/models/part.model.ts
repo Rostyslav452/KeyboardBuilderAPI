@@ -5,15 +5,12 @@ import {
     CreationOptional,
     DataTypes,
     Sequelize,
-} from "sequelize";
+} from 'sequelize';
 
-export class Part extends Model<
-    InferAttributes<Part>,
-    InferCreationAttributes<Part>
-> {
+export class Part extends Model<InferAttributes<Part>, InferCreationAttributes<Part>> {
     declare partId: CreationOptional<string>;
     declare name: string;
-    declare type: "switch" | "case" | "pcb" | "keycap";
+    declare type: 'switch' | 'case' | 'pcb' | 'keycap';
     declare price: number;
     declare specs: object;
 }
@@ -35,7 +32,7 @@ export const initPartModel = (sequelize: Sequelize) => {
                 },
             },
             type: {
-                type: DataTypes.ENUM("switch", "case", "pcb", "keycap"),
+                type: DataTypes.ENUM('switch', 'case', 'pcb', 'keycap'),
                 allowNull: false,
             },
             price: {
@@ -54,8 +51,8 @@ export const initPartModel = (sequelize: Sequelize) => {
         },
         {
             sequelize,
-            modelName: "Part",
-            tableName: "parts",
+            modelName: 'Part',
+            tableName: 'parts',
             timestamps: false,
         },
     );

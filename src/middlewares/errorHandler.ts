@@ -1,25 +1,25 @@
-import { Response, Request, NextFunction } from "express";
-import { env } from "../config/env.js";
-import logger from "../config/logger.js";
-import AppError from "../core/AppError.js";
+import { Response, Request, NextFunction } from 'express';
+import { env } from '../config/env.js';
+import logger from '../config/logger.js';
+import AppError from '../core/AppError.js';
 
 type ErrorLike = {
     statusCode: number;
-    status: "fail" | "error";
+    status: 'fail' | 'error';
     message: string;
     isOperational: boolean;
     stack?: string;
 };
 
 function isRecord(value: unknown): value is Record<string, unknown> {
-    return value === "object" && value !== null;
+    return value === 'object' && value !== null;
 }
 
 function toErrorLike(err: unknown): ErrorLike {
     if (err instanceof AppError) {
         return {
             statusCode: err.statusCode,
-            status: err.status as "fail" | "error",
+            status: err.status as 'fail' | 'error',
             message: err.message,
             isOperational: true,
             stack: err.stack,
@@ -27,26 +27,22 @@ function toErrorLike(err: unknown): ErrorLike {
     }
     if (err instanceof Error) {
         const statusCode =
-            (
-                isRecord(err) &&
-                typeof err.statusCode === "number" &&
-                Number.isFinite(err.statusCode)
-            ) ?
-                err.statusCode
-            :   500;
-        const status = statusCode >= 400 && statusCode < 500 ? "fail" : "error";
+            isRecord(err) && typeof err.statusCode === 'number' && Number.isFinite(err.statusCode)
+                ? err.statusCode
+                : 500;
+        const status = statusCode >= 400 && statusCode < 500 ? 'fail' : 'error';
         return {
             statusCode,
             status,
-            message: err.message || "Unexpected error",
+            message: err.message || 'Unexpected error',
             isOperational: false,
             stack: err.stack,
         };
     }
     return {
         statusCode: 500,
-        status: "error",
-        message: typeof err === "string" ? err : "Unknown error",
+        status: 'error',
+        message: typeof err === 'string' ? err : 'Unknown error',
         isOperational: false,
     };
 }
@@ -68,21 +64,17 @@ const sendErrorProd = (err: ErrorLike, res: Response) => {
         });
     } else {
         res.status(500).json({
-            status: "error",
-            message: "Unknown error",
+            status: 'error',
+            message: 'Unknown error',
         });
     }
 };
 
-const errorHandler = (
-    err: unknown,
-    req: Request,
-    res: Response,
-    next: NextFunction,
-) => {
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const errorHandler = (err: unknown, req: Request, res: Response, next: NextFunction) => {
     const normalized = toErrorLike(err);
 
-    if (env.NODE_ENV === "development") {
+    if (env.NODE_ENV === 'development') {
         sendErrorDev(normalized, res);
     } else {
         sendErrorProd(normalized, res);
@@ -98,7 +90,7 @@ const errorHandler = (
             method: req.method,
             stack: normalized.stack,
         },
-        "Request error",
+        'Request error',
     );
 };
 

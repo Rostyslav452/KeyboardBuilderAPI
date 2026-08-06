@@ -1,6 +1,6 @@
-import { Logger } from "pino";
-import { JWTPayload } from "./jwt.type.js";
-import { RateLimitInfo } from "express-rate-limit";
+import { Logger } from 'pino';
+import { JWTPayload } from './jwt.type.js';
+import { RateLimitInfo } from 'express-rate-limit';
 declare global {
     namespace Express {
         interface Request {
