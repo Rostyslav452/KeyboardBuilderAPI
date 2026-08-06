@@ -1,12 +1,6 @@
-import {
-    Model,
-    Sequelize,
-    DataTypes,
-    InferAttributes,
-    InferCreationAttributes,
-} from "sequelize";
-import bcrypt from "bcryptjs";
-import { env } from "../config/env.js";
+import { Model, Sequelize, DataTypes, InferAttributes, InferCreationAttributes } from 'sequelize';
+import bcrypt from 'bcrypt';
+import { env } from '../config/env.js';
 
 export class User extends Model<InferAttributes<User>, InferCreationAttributes<User>> {
     declare username: string;
@@ -34,16 +28,13 @@ export const initUserModel = (sequelize: Sequelize) => {
         },
         {
             sequelize,
-            modelName: "User",
-            tableName: "users",
+            modelName: 'User',
+            tableName: 'users',
             timestamps: false,
             hooks: {
-                beforeSave: async (user) => {
-                    if (user.password && user.changed("password")) {
-                        user.password = await bcrypt.hash(
-                            user.password,
-                           env.SALT_ROUNDS,
-                        );
+                beforeSave: async user => {
+                    if (user.password && user.changed('password')) {
+                        user.password = await bcrypt.hash(user.password, env.SALT_ROUNDS);
                     }
                 },
             },
