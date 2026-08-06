@@ -17,7 +17,7 @@ class AppError extends Error implements IAppError {
         super(message);
         Object.setPrototypeOf(this, new.target.prototype);
 
-        this.status = `${statusCode}`.startsWith("4") ? "fail" : "error";
+        this.status = `${statusCode}`.startsWith('4') ? 'fail' : 'error';
         this.isOperational = true;
         Error.captureStackTrace(this, this.constructor);
     }

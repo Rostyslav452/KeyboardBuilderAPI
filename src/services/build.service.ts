@@ -1,18 +1,18 @@
-import db from "../models/index.js";
-import AppError from "../core/AppError.js";
-import { Build } from "../models/build.model.js";
-import { CreateBuildDto, UpdateBuildDto } from "../schemas/build.schema.js";
-import { QueryPaginationDto } from "../schemas/common.schema.js";
+import db from '../models/index.js';
+import AppError from '../core/AppError.js';
+import { Build } from '../models/build.model.js';
+import { CreateBuildDto, UpdateBuildDto } from '../schemas/build.schema.js';
+import { QueryPaginationDto } from '../schemas/common.schema.js';
 
 class BuildService {
     async getBuildById(id: string): Promise<Build> {
         const build = await db.Build.findByPk(id, {
-            attributes: { exclude: ["username"] },
+            attributes: { exclude: ['username'] },
             include: [
-                { model: db.Part, as: "keyboardSwitch" },
-                { model: db.Part, as: "keyboardCase" },
-                { model: db.Part, as: "keyboardPCB" },
-                { model: db.Part, as: "keyboardKeycap" },
+                { model: db.Part, as: 'keyboardSwitch' },
+                { model: db.Part, as: 'keyboardCase' },
+                { model: db.Part, as: 'keyboardPCB' },
+                { model: db.Part, as: 'keyboardKeycap' },
             ],
         });
 
@@ -33,20 +33,16 @@ class BuildService {
         return build;
     }
 
-    async getAllBuilds({
-        limit,
-        offset,
-        sort,
-    }: QueryPaginationDto): Promise<Build[]> {
+    async getAllBuilds({ limit, offset, sort }: QueryPaginationDto): Promise<Build[]> {
         return await db.Build.findAll({
-            attributes: { exclude: ["username"] },
+            attributes: { exclude: ['username'] },
             include: [
-                { model: db.Part, as: "keyboardSwitch" },
-                { model: db.Part, as: "keyboardCase" },
-                { model: db.Part, as: "keyboardPCB" },
-                { model: db.Part, as: "keyboardKeycap" },
+                { model: db.Part, as: 'keyboardSwitch' },
+                { model: db.Part, as: 'keyboardCase' },
+                { model: db.Part, as: 'keyboardPCB' },
+                { model: db.Part, as: 'keyboardKeycap' },
             ],
-            order: [["name", sort]],
+            order: [['name', sort]],
             limit: limit,
             offset: offset,
         });
@@ -56,18 +52,11 @@ class BuildService {
         return await db.Build.create({ ...data, username });
     }
 
-    async updateBuild(
-        id: string,
-        updatedData: UpdateBuildDto,
-        username: string,
-    ): Promise<Build> {
+    async updateBuild(id: string, updatedData: UpdateBuildDto, username: string): Promise<Build> {
         const buildInstance = await this.checkExistence(id);
 
         if (buildInstance.username !== username) {
-            throw new AppError(
-                "Invalid username, token username not equal to body username",
-                403,
-            );
+            throw new AppError('Invalid username, token username not equal to body username', 403);
         }
 
         return await buildInstance.update(updatedData);
@@ -77,10 +66,7 @@ class BuildService {
         const buildInstance = await this.checkExistence(id);
 
         if (buildInstance.username !== username) {
-            throw new AppError(
-                "Invalid username, token username not equal to body username",
-                403,
-            );
+            throw new AppError('Invalid username, token username not equal to body username', 403);
         }
 
         await buildInstance.destroy();
@@ -88,12 +74,12 @@ class BuildService {
 
     async getBuildsByUser(username: string): Promise<Build[]> {
         const builds = await db.Build.findAll({
-            attributes: { exclude: ["username"] },
+            attributes: { exclude: ['username'] },
             include: [
-                { model: db.Part, as: "keyboardSwitch" },
-                { model: db.Part, as: "keyboardCase" },
-                { model: db.Part, as: "keyboardPCB" },
-                { model: db.Part, as: "keyboardKeycap" },
+                { model: db.Part, as: 'keyboardSwitch' },
+                { model: db.Part, as: 'keyboardCase' },
+                { model: db.Part, as: 'keyboardPCB' },
+                { model: db.Part, as: 'keyboardKeycap' },
             ],
             where: {
                 username: username,
@@ -101,7 +87,7 @@ class BuildService {
         });
 
         if (builds.length === 0) {
-            throw new AppError("No builds found for this user", 404);
+            throw new AppError('No builds found for this user', 404);
         }
 
         return builds;

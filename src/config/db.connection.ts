@@ -1,12 +1,12 @@
-import { env } from "./env.js";
-import { Sequelize } from "sequelize";
-import logger from "./logger.js";
+import { env } from './env.js';
+import { Sequelize } from 'sequelize';
+import logger from './logger.js';
 
-const dbLogger = logger.child({ module: "DATABASE" });
+const dbLogger = logger.child({ module: 'DATABASE' });
 
 const sequelize = new Sequelize(env.DB_NAME, env.DB_USERNAME, env.DB_PASSWORD, {
     host: env.DB_HOST,
-    dialect: "mysql",
+    dialect: 'mysql',
     logging: (sql, timing) => {
         dbLogger.debug({ duration: `${timing}ms` }, sql);
     },

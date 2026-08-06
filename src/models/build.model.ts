@@ -5,24 +5,19 @@ import {
     CreationOptional,
     DataTypes,
     Sequelize,
-} from "sequelize";
+} from 'sequelize';
 
+export class Build extends Model<InferAttributes<Build>, InferCreationAttributes<Build>> {
+    declare buildId: CreationOptional<string>;
+    declare name: string;
+    declare username: string;
+    declare switchId: string;
+    declare caseId: string;
+    declare pcbId: string;
+    declare keycapId: string;
+}
 
-export class Build extends Model<
-        InferAttributes<Build>,
-        InferCreationAttributes<Build>
-    > {
-        declare buildId: CreationOptional<string>;
-        declare name: string;
-        declare username: string;
-        declare switchId: string;
-        declare caseId: string;
-        declare pcbId: string;
-        declare keycapId: string;
-};
-
-
-export const initBuildModel = (sequelize:Sequelize) => {
+export const initBuildModel = (sequelize: Sequelize) => {
     Build.init(
         {
             buildId: {
@@ -41,50 +36,50 @@ export const initBuildModel = (sequelize:Sequelize) => {
                 type: DataTypes.STRING(64),
                 allowNull: false,
                 references: {
-                    key: "username",
-                    model: "users",
+                    key: 'username',
+                    model: 'users',
                 },
             },
             switchId: {
                 type: DataTypes.UUID,
                 allowNull: false,
                 references: {
-                    key: "partId",
-                    model: "parts",
+                    key: 'partId',
+                    model: 'parts',
                 },
             },
             caseId: {
                 type: DataTypes.UUID,
                 allowNull: false,
                 references: {
-                    key: "partId",
-                    model: "parts",
+                    key: 'partId',
+                    model: 'parts',
                 },
             },
             pcbId: {
                 type: DataTypes.UUID,
                 allowNull: false,
                 references: {
-                    key: "partId",
-                    model: "parts",
+                    key: 'partId',
+                    model: 'parts',
                 },
             },
             keycapId: {
                 type: DataTypes.UUID,
                 allowNull: false,
                 references: {
-                    key: "partId",
-                    model: "parts",
+                    key: 'partId',
+                    model: 'parts',
                 },
             },
         },
         {
             sequelize,
-            modelName: "Build",
-            tableName: "builds",
+            modelName: 'Build',
+            tableName: 'builds',
             timestamps: false,
         },
     );
 
     return Build;
-}
+};

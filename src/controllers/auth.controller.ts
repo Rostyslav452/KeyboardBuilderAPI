@@ -1,15 +1,11 @@
-import authService from "../services/auth.service.js";
-import asyncHandler from "../utils/asyncHandler.js";
-import { env } from "../config/env.js";
-import { CookieOptions } from "express";
-import { APIResponse } from "../types/api.type.js";
-import {
-    LoginDto,
-    RegisterDto,
-    ResetPasswordDto,
-} from "../schemas/auth.schema.js";
-import { JWTPayload } from "../types/jwt.type.js";
-import { getRefreshTokenOrThrow } from "../utils/cookieParser.utils.js";
+import authService from '../services/auth.service.js';
+import asyncHandler from '../utils/asyncHandler.js';
+import { env } from '../config/env.js';
+import { CookieOptions } from 'express';
+import { APIResponse } from '../types/api.type.js';
+import { LoginDto, RegisterDto, ResetPasswordDto } from '../schemas/auth.schema.js';
+import { JWTPayload } from '../types/jwt.type.js';
+import { getRefreshTokenOrThrow } from '../utils/cookieParser.utils.js';
 
 type AuthUserResponse = {
     username: string;
@@ -21,14 +17,14 @@ const maxAge = expiresInDays * 1000 * 60 * 60 * 24;
 const cookieOptions: CookieOptions = {
     maxAge,
     httpOnly: true,
-    secure: env.NODE_ENV === "production",
-    sameSite: "strict",
+    secure: env.NODE_ENV === 'production',
+    sameSite: 'strict',
 };
 
 const clearCookieOptions: CookieOptions = {
     httpOnly: true,
-    secure: env.NODE_ENV === "production",
-    sameSite: "strict",
+    secure: env.NODE_ENV === 'production',
+    sameSite: 'strict',
 };
 
 const register = asyncHandler(async (req, res) => {
@@ -36,9 +32,9 @@ const register = asyncHandler(async (req, res) => {
 
     const user = await authService.register(body, req.log);
 
-    res.cookie("refreshToken", user.refreshToken, cookieOptions);
+    res.cookie('refreshToken', user.refreshToken, cookieOptions);
     res.status(201).json({
-        status: "success",
+        status: 'success',
         data: {
             username: user.username,
         },
@@ -51,9 +47,9 @@ const login = asyncHandler(async (req, res) => {
 
     const user = await authService.login(body, req.log);
 
-    res.cookie("refreshToken", user.refreshToken, cookieOptions);
+    res.cookie('refreshToken', user.refreshToken, cookieOptions);
     res.status(200).json({
-        status: "success",
+        status: 'success',
         data: {
             username: user.username,
         },
@@ -66,7 +62,7 @@ const logout = asyncHandler(async (req, res) => {
 
     await authService.logout(refreshToken, req.log);
 
-    res.clearCookie("refreshToken", clearCookieOptions);
+    res.clearCookie('refreshToken', clearCookieOptions);
     res.sendStatus(204);
 });
 
@@ -77,8 +73,8 @@ const resetPassword = asyncHandler(async (req, res) => {
     const username = await authService.resetPassword(body, user, req.log);
 
     res.status(200).json({
-        status: "success",
-        message: "Password has been changed successfully",
+        status: 'success',
+        message: 'Password has been changed successfully',
         data: {
             username,
         },
@@ -90,9 +86,9 @@ const token = asyncHandler(async (req, res) => {
 
     const user = await authService.token(refreshToken, req.log);
 
-    res.cookie("refreshToken", user.refreshToken, cookieOptions);
+    res.cookie('refreshToken', user.refreshToken, cookieOptions);
     res.status(201).json({
-        status: "success",
+        status: 'success',
         data: {
             username: user.username,
         },
