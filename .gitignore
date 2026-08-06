@@ -1,8 +1,6 @@
-bugs
 .env
 node_modules
-npm-debug.log
 .idea
 .vscode
-logs
 dist
+.Todo

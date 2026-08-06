@@ -1,8 +1,11 @@
-/dist
+dist
 .env
-/.idea
-/bugs
-/logs
-/node_modules
-/test
+.git
+.idea
+.vscode
+.husky
+node_modules
+test
 .gitignore
+Todo
+Readme.md

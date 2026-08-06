@@ -5,22 +5,19 @@ import {
     CreationOptional,
     DataTypes,
     Sequelize,
-} from "sequelize";
-import bcrypt from "bcryptjs";
-import { env } from "../config/env.js";
+} from 'sequelize';
+import bcrypt from 'bcrypt';
+import { env } from '../config/env.js';
 
-export class Token extends Model<
-    InferAttributes<Token>,
-    InferCreationAttributes<Token>
-> {
+export class Token extends Model<InferAttributes<Token>, InferCreationAttributes<Token>> {
     declare id: CreationOptional<string>;
     declare username: string;
     declare refreshToken: string;
     declare expiresAt: Date;
 
     compareToken(candidateToken: string) {
-      return bcrypt.compare(candidateToken, this.refreshToken);
-   }
+        return bcrypt.compare(candidateToken, this.refreshToken);
+    }
 }
 
 export const initTokenModel = (sequelize: Sequelize) => {
@@ -34,8 +31,8 @@ export const initTokenModel = (sequelize: Sequelize) => {
             username: {
                 type: DataTypes.STRING(64),
                 references: {
-                    model: "users",
-                    key: "username",
+                    model: 'users',
+                    key: 'username',
                 },
             },
             refreshToken: {
@@ -49,16 +46,16 @@ export const initTokenModel = (sequelize: Sequelize) => {
         },
         {
             sequelize,
-            tableName: "tokens",
-            modelName: "Token",
+            tableName: 'tokens',
+            modelName: 'Token',
             timestamps: false,
-            hooks:{
-               beforeSave: async(token) =>{
-                  if(token.refreshToken && token.changed("refreshToken")){
-                     token.refreshToken = await bcrypt.hash(token.refreshToken, env.SALT_ROUNDS);
-                  }
-               }
-            }
+            hooks: {
+                beforeSave: async token => {
+                    if (token.refreshToken && token.changed('refreshToken')) {
+                        token.refreshToken = await bcrypt.hash(token.refreshToken, env.SALT_ROUNDS);
+                    }
+                },
+            },
         },
     );
 
