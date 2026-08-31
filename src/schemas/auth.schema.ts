@@ -16,7 +16,7 @@ const registerSchema = z.object({
             confirmPassword: z.string(),
         })
         .refine(data => data.password === data.confirmPassword, {
-            message: "Passwords don't mutch",
+            message: "Passwords don't match",
             path: ['confirmPassword'],
         }),
 });

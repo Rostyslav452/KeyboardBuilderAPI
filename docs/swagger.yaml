@@ -1,26 +1,1108 @@
 openapi: 3.1.0
 info:
-  title: Mechanical keyboard builder api
-  version: 1.0.4
-  description: Api implements ...
+    title: Mechanical Keyboard Builder API
+    version: 1.0.0
+    description: |
+        API for managing mechanical keyboard components and creating keyboard configurations.
+        Allows users to register, login, manage parts (switches, cases, PCBs, keycaps) and save their keyboard builds.
+
+    contact:
+        name: Rostyslav
+        email: rooostik2016@gmail.com
 
 servers:
-  - url: http://localhost:3000/api/v1
-    description: Local environment
-    
-path:
-  /auth/register:
-    post:
-      tags:
-        - Users
-      summary: User registration
-      operationalId: registerUser
+    - url: http://localhost:3000/api/v1
+      description: Local development environment
+    - url: https://api.example.com/api/v1
+      description: Production environment
 
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              
+tags:
+    - name: Authentication
+      description: User authentication and authorization
+    - name: Parts
+      description: Manage keyboard components (switches, cases, PCBs, keycaps)
+    - name: Builds
+      description: Manage keyboard configurations
 
+components:
+    securitySchemes:
+        BearerAuth:
+            type: http
+            scheme: bearer
+            bearerFormat: JWT
+            description: JWT token for authentication. Obtained during login or registration.
 
+    schemas:
+        Error:
+            type: object
+            required:
+                - status
+                - message
+            properties:
+                status:
+                    type: string
+                    enum: [error]
+                message:
+                    type: string
+                    description: Error description
+
+        SuccessResponse:
+            type: object
+            required:
+                - status
+            properties:
+                status:
+                    type: string
+                    enum: [success]
+                message:
+                    type: string
+                data:
+                    type: object
+                accessToken:
+                    type: string
+                    description: JWT token for authentication
+
+        # User schemas
+        User:
+            type: object
+            properties:
+                username:
+                    type: string
+                    minLength: 3
+                    maxLength: 64
+                    description: Unique username
+
+        UserRegisterRequest:
+            type: object
+            required:
+                - username
+                - password
+                - confirmPassword
+            properties:
+                username:
+                    type: string
+                    minLength: 3
+                    maxLength: 64
+                    example: 'john_doe'
+                password:
+                    type: string
+                    minLength: 8
+                    format: password
+                    description: 'Password must contain letters and numbers (minimum 8 characters)'
+                    example: 'Password123'
+                confirmPassword:
+                    type: string
+                    format: password
+                    description: Must match password field
+                    example: 'Password123'
+
+        UserLoginRequest:
+            type: object
+            required:
+                - username
+                - password
+            properties:
+                username:
+                    type: string
+                    minLength: 1
+                    example: 'john_doe'
+                password:
+                    type: string
+                    minLength: 1
+                    format: password
+                    example: 'Password123'
+
+        ResetPasswordRequest:
+            type: object
+            required:
+                - password
+                - newPassword
+            properties:
+                password:
+                    type: string
+                    minLength: 1
+                    format: password
+                    description: Current password
+                    example: 'OldPassword123'
+                newPassword:
+                    type: string
+                    minLength: 8
+                    format: password
+                    description: 'New password (minimum 8 characters, letters and numbers required)'
+                    example: 'NewPassword456'
+
+        # Part schemas
+        SwitchSpecs:
+            type: object
+            required:
+                - switchType
+                - pins
+                - actuationForce
+            properties:
+                switchType:
+                    type: string
+                    enum: ['Linear', 'Tactile', 'Clicky', 'Silent']
+                pins:
+                    type: string
+                    enum: ['3-pin', '5-pin']
+                actuationForce:
+                    type: number
+                    minimum: 10
+                    maximum: 100
+                    description: 'Actuation force in grams'
+                travelDistance:
+                    type: number
+                    description: 'Travel distance in mm (optional)'
+
+        CaseSpecs:
+            type: object
+            required:
+                - formFactor
+                - material
+                - color
+            properties:
+                formFactor:
+                    type: string
+                    enum: ['60%', '65%', '75%', 'TKL', 'Full-size', '96%']
+                material:
+                    type: string
+                    enum: ['ABS', 'PBT', 'Aluminum', 'Polycarbonate', 'Acrylic', 'FR4']
+                mountStyle:
+                    type: string
+                    description: 'Mount style (optional)'
+                color:
+                    type: string
+                    example: 'Black'
+
+        PCBSpecs:
+            type: object
+            required:
+                - formFactor
+                - hotSwap
+                - rgbSupport
+                - connection
+            properties:
+                formFactor:
+                    type: string
+                    enum: ['60%', '65%', '75%', 'TKL', 'Full-size', '96%']
+                hotSwap:
+                    type: boolean
+                rgbSupport:
+                    type: string
+                    enum: ['none', 'per-key', 'underglow']
+                connection:
+                    type: array
+                    items:
+                        type: string
+                        enum: ['USB-C', 'Bluetooth', '2.4GHz']
+                    example: ['USB-C', 'Bluetooth']
+
+        KeycapSpecs:
+            type: object
+            required:
+                - profile
+                - material
+                - legends
+                - language
+            properties:
+                profile:
+                    type: string
+                    enum: ['Cherry', 'OEM', 'SA', 'XDA', 'DSA', 'MT3']
+                material:
+                    type: string
+                    enum: ['ABS', 'PBT']
+                legends:
+                    type: string
+                    enum: ['Double-shot', 'Dye-sub', 'Laser-etched']
+                language:
+                    type: array
+                    items:
+                        type: string
+                    example: ['EN', 'UA']
+
+        SwitchPart:
+            type: object
+            required:
+                - name
+                - type
+                - price
+                - specs
+            properties:
+                name:
+                    type: string
+                    minLength: 3
+                    maxLength: 64
+                    example: 'Cherry MX Red'
+                type:
+                    type: string
+                    enum: ['switch']
+                price:
+                    type: number
+                    minimum: 1
+                    maximum: 99999
+                    example: 99.99
+                specs:
+                    $ref: '#/components/schemas/SwitchSpecs'
+
+        CasePart:
+            type: object
+            required:
+                - name
+                - type
+                - price
+                - specs
+            properties:
+                name:
+                    type: string
+                    minLength: 3
+                    maxLength: 64
+                    example: 'Glorious GMMK Pro Black'
+                type:
+                    type: string
+                    enum: ['case']
+                price:
+                    type: number
+                    minimum: 1
+                    maximum: 99999
+                    example: 249.99
+                specs:
+                    $ref: '#/components/schemas/CaseSpecs'
+
+        PCBPart:
+            type: object
+            required:
+                - name
+                - type
+                - price
+                - specs
+            properties:
+                name:
+                    type: string
+                    minLength: 3
+                    maxLength: 64
+                    example: 'GMMK Pro PCB'
+                type:
+                    type: string
+                    enum: ['pcb']
+                price:
+                    type: number
+                    minimum: 1
+                    maximum: 99999
+                    example: 159.99
+                specs:
+                    $ref: '#/components/schemas/PCBSpecs'
+
+        KeycapPart:
+            type: object
+            required:
+                - name
+                - type
+                - price
+                - specs
+            properties:
+                name:
+                    type: string
+                    minLength: 3
+                    maxLength: 64
+                    example: 'GMK Coral'
+                type:
+                    type: string
+                    enum: ['keycap']
+                price:
+                    type: number
+                    minimum: 1
+                    maximum: 99999
+                    example: 189.99
+                specs:
+                    $ref: '#/components/schemas/KeycapSpecs'
+
+        Part:
+            oneOf:
+                - $ref: '#/components/schemas/SwitchPart'
+                - $ref: '#/components/schemas/CasePart'
+                - $ref: '#/components/schemas/PCBPart'
+                - $ref: '#/components/schemas/KeycapPart'
+
+        PartResponse:
+            allOf:
+                - type: object
+                  properties:
+                      partId:
+                          type: string
+                          format: uuid
+                - $ref: '#/components/schemas/Part'
+
+        PartsListResponse:
+            type: object
+            properties:
+                status:
+                    type: string
+                    enum: [success]
+                data:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/PartResponse'
+
+        # Build schemas
+        BuildCreateRequest:
+            type: object
+            required:
+                - name
+                - switchId
+                - caseId
+                - pcbId
+                - keycapId
+            properties:
+                name:
+                    type: string
+                    minLength: 3
+                    maxLength: 64
+                    example: 'My Custom Keyboard'
+                switchId:
+                    type: string
+                    format: uuid
+                    description: Switch ID
+                    example: '550e8400-e29b-41d4-a716-446655440000'
+                caseId:
+                    type: string
+                    format: uuid
+                    description: Case ID
+                    example: '6ba7b810-9dad-11d1-80b4-00c04fd430c8'
+                pcbId:
+                    type: string
+                    format: uuid
+                    description: PCB ID
+                    example: '6ba7b811-9dad-11d1-80b4-00c04fd430c8'
+                keycapId:
+                    type: string
+                    format: uuid
+                    description: Keycap ID
+                    example: '6ba7b812-9dad-11d1-80b4-00c04fd430c8'
+
+        BuildUpdateRequest:
+            type: object
+            properties:
+                name:
+                    type: string
+                    minLength: 3
+                    maxLength: 64
+                switchId:
+                    type: string
+                    format: uuid
+                caseId:
+                    type: string
+                    format: uuid
+                pcbId:
+                    type: string
+                    format: uuid
+                keycapId:
+                    type: string
+                    format: uuid
+
+        BuildResponse:
+            type: object
+            properties:
+                buildId:
+                    type: string
+                    format: uuid
+                name:
+                    type: string
+                username:
+                    type: string
+                switchId:
+                    type: string
+                    format: uuid
+                caseId:
+                    type: string
+                    format: uuid
+                pcbId:
+                    type: string
+                    format: uuid
+                keycapId:
+                    type: string
+                    format: uuid
+
+        BuildsListResponse:
+            type: object
+            properties:
+                status:
+                    type: string
+                    enum: [success]
+                data:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/BuildResponse'
+
+paths:
+    /auth/register:
+        post:
+            tags:
+                - Authentication
+            summary: User registration
+            description: Creates a new user account
+            operationId: registerUser
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/UserRegisterRequest'
+                        examples:
+                            default:
+                                value:
+                                    username: 'john_doe'
+                                    password: 'MyPassword123'
+                                    confirmPassword: 'MyPassword123'
+            responses:
+                '201':
+                    description: User successfully registered
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/SuccessResponse'
+                            example:
+                                status: 'success'
+                                message: 'User registered successfully'
+                '400':
+                    description: Validation error
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Error'
+                            example:
+                                status: 'error'
+                                message: 'Username already exists'
+                '429':
+                    description: Too many requests
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Error'
+
+    /auth/login:
+        post:
+            tags:
+                - Authentication
+            summary: User login
+            description: Authenticates user and returns JWT token
+            operationId: loginUser
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/UserLoginRequest'
+                        examples:
+                            default:
+                                value:
+                                    username: 'john_doe'
+                                    password: 'MyPassword123'
+            responses:
+                '200':
+                    description: Login successful
+                    content:
+                        application/json:
+                            schema:
+                                allOf:
+                                    - $ref: '#/components/schemas/SuccessResponse'
+                                    - type: object
+                                      properties:
+                                          accessToken:
+                                              type: string
+                            example:
+                                status: 'success'
+                                accessToken: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'
+                    headers:
+                        Set-Cookie:
+                            schema:
+                                type: string
+                                example: 'refreshToken=abc123; HttpOnly; Path=/; SameSite=Strict'
+                '401':
+                    description: Invalid credentials
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Error'
+                '429':
+                    description: Too many login attempts
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Error'
+
+    /auth/token:
+        post:
+            tags:
+                - Authentication
+            summary: Refresh token
+            description: Refreshes JWT access token using refresh token from cookies
+            operationId: refreshToken
+            responses:
+                '200':
+                    description: New token successfully obtained
+                    content:
+                        application/json:
+                            schema:
+                                allOf:
+                                    - $ref: '#/components/schemas/SuccessResponse'
+                                    - type: object
+                                      properties:
+                                          accessToken:
+                                              type: string
+                            example:
+                                status: 'success'
+                                accessToken: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'
+                '401':
+                    description: Refresh token is invalid or missing
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Error'
+
+    /auth/logout:
+        post:
+            tags:
+                - Authentication
+            summary: User logout
+            description: Removes cookies and terminates session
+            operationId: logoutUser
+            responses:
+                '200':
+                    description: Logout successful
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/SuccessResponse'
+                            example:
+                                status: 'success'
+                                message: 'Logged out successfully'
+
+    /auth/resetPassword:
+        post:
+            tags:
+                - Authentication
+            summary: Change password
+            description: Allows authenticated user to change their password
+            operationId: resetPassword
+            security:
+                - BearerAuth: []
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/ResetPasswordRequest'
+                        examples:
+                            default:
+                                value:
+                                    password: 'OldPassword123'
+                                    newPassword: 'NewPassword456'
+            responses:
+                '200':
+                    description: Password successfully changed
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/SuccessResponse'
+                            example:
+                                status: 'success'
+                                message: 'Password changed successfully'
+                '401':
+                    description: Not authenticated
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Error'
+                '403':
+                    description: Invalid current password
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Error'
+
+    /parts:
+        get:
+            tags:
+                - Parts
+            summary: Get list of parts
+            description: Returns a list of all available keyboard parts with pagination
+            operationId: getAllParts
+            parameters:
+                - name: limit
+                  in: query
+                  schema:
+                      type: integer
+                      default: 10
+                      minimum: 1
+                  description: Number of parts per page
+                - name: offset
+                  in: query
+                  schema:
+                      type: integer
+                      default: 0
+                      minimum: 0
+                  description: Number of parts to skip
+                - name: sort
+                  in: query
+                  schema:
+                      type: string
+                      enum: [ASC, DESC]
+                      default: ASC
+                  description: Sort order by price
+            responses:
+                '200':
+                    description: Parts list successfully retrieved
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/PartsListResponse'
+                '400':
+                    description: Parameter validation error
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Error'
+
+        post:
+            tags:
+                - Parts
+            summary: Create new part
+            description: Creates one or more new keyboard parts
+            operationId: createPart
+            security:
+                - BearerAuth: []
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            type: array
+                            items:
+                                $ref: '#/components/schemas/Part'
+                            minItems: 1
+                            example:
+                                - name: 'Cherry MX Red'
+                                  type: 'switch'
+                                  price: 99.99
+                                  specs:
+                                      switchType: 'Linear'
+                                      pins: '5-pin'
+                                      actuationForce: 45
+            responses:
+                '201':
+                    description: Part(s) successfully created
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/PartsListResponse'
+                '400':
+                    description: Data validation error
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Error'
+                '401':
+                    description: Not authenticated
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Error'
+
+    /parts/{id}:
+        get:
+            tags:
+                - Parts
+            summary: Get part by ID
+            description: Returns a specific part by its unique identifier
+            operationId: getPartById
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                      type: string
+                      format: uuid
+                  description: Part UUID
+                  example: '550e8400-e29b-41d4-a716-446655440000'
+            responses:
+                '200':
+                    description: Part successfully retrieved
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    status:
+                                        type: string
+                                        enum: [success]
+                                    data:
+                                        $ref: '#/components/schemas/PartResponse'
+                '404':
+                    description: Деталь не знайдена
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Error'
+
+        patch:
+            tags:
+                - Parts
+            summary: Update part
+            description: Updates a specific part by its ID
+            operationId: updatePart
+            security:
+                - BearerAuth: []
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                      type: string
+                      format: uuid
+                  description: Part UUID
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            properties:
+                                name:
+                                    type: string
+                                    minLength: 3
+                                    maxLength: 64
+                                price:
+                                    type: number
+                                    minimum: 1
+                                specs:
+                                    type: object
+                            example:
+                                price: 89.99
+                                specs:
+                                    actuationForce: 50
+            responses:
+                '200':
+                    description: Part successfully updated
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    status:
+                                        type: string
+                                        enum: [success]
+                                    data:
+                                        $ref: '#/components/schemas/PartResponse'
+                '400':
+                    description: Data validation error
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Error'
+                '401':
+                    description: Not authenticated
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Error'
+                '404':
+                    description: Part not found
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Error'
+
+        delete:
+            tags:
+                - Parts
+            summary: Delete part
+            description: Deletes a specific part by its ID
+            operationId: deletePart
+            security:
+                - BearerAuth: []
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                      type: string
+                      format: uuid
+                  description: Part UUID
+            responses:
+                '200':
+                    description: Part successfully deleted
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/SuccessResponse'
+                            example:
+                                status: 'success'
+                                message: 'Part deleted successfully'
+                '401':
+                    description: Не аутентифіковано
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Error'
+                '404':
+                    description: Деталь не знайдена
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Error'
+
+    /builds:
+        get:
+            tags:
+                - Builds
+            summary: Get list of builds
+            description: Returns a list of all available keyboard configurations with pagination
+            operationId: getAllBuilds
+            parameters:
+                - name: limit
+                  in: query
+                  schema:
+                      type: integer
+                      default: 10
+                      minimum: 1
+                  description: Number of builds per page
+                - name: offset
+                  in: query
+                  schema:
+                      type: integer
+                      default: 0
+                      minimum: 0
+                  description: Number of builds to skip
+                - name: sort
+                  in: query
+                  schema:
+                      type: string
+                      enum: [ASC, DESC]
+                      default: ASC
+                  description: Sort order
+            responses:
+                '200':
+                    description: Builds list successfully retrieved
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/BuildsListResponse'
+                '400':
+                    description: Parameter validation error
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Error'
+
+        post:
+            tags:
+                - Builds
+            summary: Create new build
+            description: Creates a new keyboard configuration for the current user
+            operationId: createBuild
+            security:
+                - BearerAuth: []
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/BuildCreateRequest'
+                        example:
+                            name: 'My First Keyboard'
+                            switchId: '550e8400-e29b-41d4-a716-446655440000'
+                            caseId: '6ba7b810-9dad-11d1-80b4-00c04fd430c8'
+                            pcbId: '6ba7b811-9dad-11d1-80b4-00c04fd430c8'
+                            keycapId: '6ba7b812-9dad-11d1-80b4-00c04fd430c8'
+            responses:
+                '201':
+                    description: Build successfully created
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    status:
+                                        type: string
+                                        enum: [success]
+                                    data:
+                                        $ref: '#/components/schemas/BuildResponse'
+                '400':
+                    description: Помилка валідації даних
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Error'
+                '401':
+                    description: Не аутентифіковано
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Error'
+
+    /builds/user:
+        get:
+            tags:
+                - Builds
+            summary: Get current user builds
+            description: Returns all builds created by the currently authenticated user
+            operationId: getBuildsByUser
+            security:
+                - BearerAuth: []
+            responses:
+                '200':
+                    description: User builds successfully retrieved
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/BuildsListResponse'
+                '401':
+                    description: Not authenticated
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Error'
+
+    /builds/{id}:
+        get:
+            tags:
+                - Builds
+            summary: Get build by ID
+            description: Returns a specific build by its unique identifier
+            operationId: getBuildById
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                      type: string
+                      format: uuid
+                  description: Build UUID
+                  example: '550e8400-e29b-41d4-a716-446655440000'
+            responses:
+                '200':
+                    description: Build successfully retrieved
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    status:
+                                        type: string
+                                        enum: [success]
+                                    data:
+                                        $ref: '#/components/schemas/BuildResponse'
+                '404':
+                    description: Конфігурація не знайдена
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Error'
+
+        patch:
+            tags:
+                - Builds
+            summary: Update build
+            description: Updates a specific build by its ID. Only available to the build owner.
+            operationId: updateBuild
+            security:
+                - BearerAuth: []
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                      type: string
+                      format: uuid
+                  description: Build UUID
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/BuildUpdateRequest'
+                        example:
+                            name: 'Updated Keyboard'
+                            switchId: '550e8400-e29b-41d4-a716-446655440000'
+            responses:
+                '200':
+                    description: Build successfully updated
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    status:
+                                        type: string
+                                        enum: [success]
+                                    data:
+                                        $ref: '#/components/schemas/BuildResponse'
+                '400':
+                    description: Data validation error
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Error'
+                '401':
+                    description: Not authenticated
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Error'
+                '403':
+                    description: Insufficient permissions to update build
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Error'
+                '404':
+                    description: Build not found
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Error'
+
+        delete:
+            tags:
+                - Builds
+            summary: Delete build
+            description: Deletes a specific build by its ID. Only available to the build owner.
+            operationId: deleteBuild
+            security:
+                - BearerAuth: []
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                      type: string
+                      format: uuid
+                  description: Build UUID
+            responses:
+                '200':
+                    description: Build successfully deleted
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/SuccessResponse'
+                            example:
+                                status: 'success'
+                                message: 'Build deleted successfully'
+                '401':
+                    description: Not authenticated
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Error'
+                '403':
+                    description: Insufficient permissions to delete build
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Error'
+                '404':
+                    description: Build not found
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Error'

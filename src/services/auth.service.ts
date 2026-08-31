@@ -60,7 +60,7 @@ class AuthService {
 
         await db.User.create({ username, password });
 
-        const payload = { username }; //role: user, admin
+        const payload = { username };
 
         const refreshToken = await this.#generateAndSaveRefreshToken(payload, log);
         const accessToken = this.#generateAccessToken(payload, log);
