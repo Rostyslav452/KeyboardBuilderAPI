@@ -1,57 +1,63 @@
 import partService from '../services/part.service.js';
-import asyncHandler from '../utils/asyncHandler.js';
-import { ParamsIdDto, QueryPaginationDto } from '../schemas/common.schema.js';
 import { APIResponse } from '../types/api.type.js';
 import { Part } from '../models/part.model.js';
-import { CreatePartDto, UpdatePartDto } from '../schemas/part.schema.js';
+import createValidatedHandler from '../utils/createValidatedHandler.js';
+import { paramsIdSchema, queryPaginationSchema } from '../schemas/common.schema.js';
+import { createPartsBodySchema, updatePartBodySchema } from '../schemas/part.schema.js';
 
-const getAllParts = asyncHandler(async (req, res) => {
-    const query = res.locals.query as QueryPaginationDto;
-    const parts = await partService.getAllParts(query);
+const getAllParts = createValidatedHandler(
+   { query: queryPaginationSchema },
+   async ({ query, res }) => {
+      const parts = await partService.getAllParts(query);
 
-    res.status(200).json({
-        status: 'success',
-        data: parts,
-    } satisfies APIResponse<Part[]>);
+      res.status(200).json({
+         status: 'success',
+         data: parts,
+      } satisfies APIResponse<Part[]>);
+   },
+);
+
+const getPartById = createValidatedHandler({ params: paramsIdSchema }, async ({ res, params }) => {
+   const { id } = params;
+   const part = await partService.getPartById(id);
+
+   res.status(200).json({
+      status: 'success',
+      data: part,
+   } satisfies APIResponse<Part>);
 });
 
-const getPartById = asyncHandler(async (req, res) => {
-    const { id } = res.locals.params as ParamsIdDto;
-    const part = await partService.getPartById(id);
+const createParts = createValidatedHandler(
+   { body: createPartsBodySchema },
+   async ({ res, body }) => {
+      const parts = await partService.createParts(body);
 
-    res.status(200).json({
-        status: 'success',
-        data: part,
-    } satisfies APIResponse<Part>);
+      res.status(201).json({
+         status: 'success',
+         data: parts,
+      } satisfies APIResponse<Part[]>);
+   },
+);
+
+const updatePart = createValidatedHandler(
+   { params: paramsIdSchema, body: updatePartBodySchema },
+   async ({ res, params, body }) => {
+      const { id } = params;
+      const part = await partService.updatePart(id, body);
+
+      res.status(200).json({
+         status: 'success',
+         data: part,
+      } satisfies APIResponse<Part>);
+   },
+);
+
+const deletePart = createValidatedHandler({ params: paramsIdSchema }, async ({ res, params }) => {
+   const { id } = params;
+
+   await partService.deletePart(id);
+
+   res.sendStatus(204);
 });
 
-const createPart = asyncHandler(async (req, res) => {
-    const body = res.locals.body as CreatePartDto[];
-    const part = await partService.createPart(body);
-
-    res.status(201).json({
-        status: 'success',
-        data: part,
-    } satisfies APIResponse<Part[]>);
-});
-
-const updatePart = asyncHandler(async (req, res) => {
-    const { id } = res.locals.params as ParamsIdDto;
-    const body = res.locals.body as UpdatePartDto;
-
-    const part = await partService.updatePart(id, body);
-
-    res.status(200).json({
-        status: 'success',
-        data: part,
-    } satisfies APIResponse<Part>);
-});
-
-const deletePart = asyncHandler(async (req, res) => {
-    const { id } = res.locals.params as ParamsIdDto;
-    await partService.deletePart(id);
-
-    res.sendStatus(204);
-});
-
-export { getAllParts, createPart, getPartById, updatePart, deletePart };
+export { getAllParts, createParts, getPartById, updatePart, deletePart };
