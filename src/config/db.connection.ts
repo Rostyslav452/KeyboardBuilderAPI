@@ -5,11 +5,12 @@ import logger from './logger.js';
 const dbLogger = logger.child({ module: 'DATABASE' });
 
 const sequelize = new Sequelize(env.DB_NAME, env.DB_USERNAME, env.DB_PASSWORD, {
-    host: env.DB_HOST,
-    dialect: 'mysql',
-    logging: (sql, timing) => {
-        dbLogger.debug({ duration: `${timing}ms` }, sql);
-    },
+   host: env.DB_HOST,
+   port: env.DB_PORT,
+   dialect: 'mysql',
+   logging: (sql, timing) => {
+      dbLogger.debug({ duration: `${timing}ms` }, sql);
+   },
 });
 
 export default sequelize;

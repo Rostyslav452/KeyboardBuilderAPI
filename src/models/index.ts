@@ -12,25 +12,25 @@ initBuildModel(sequelize);
 initTokenModel(sequelize);
 
 Build.belongsTo(Part, {
-    as: 'keyboardSwitch',
-    foreignKey: 'switchId',
+   as: 'keyboardSwitch',
+   foreignKey: 'switchId',
 });
 Build.belongsTo(Part, {
-    as: 'keyboardCase',
-    foreignKey: 'caseId',
+   as: 'keyboardCase',
+   foreignKey: 'caseId',
 });
 Build.belongsTo(Part, {
-    as: 'keyboardPCB',
-    foreignKey: 'pcbId',
+   as: 'keyboardPCB',
+   foreignKey: 'pcbId',
 });
 Build.belongsTo(Part, {
-    as: 'keyboardKeycap',
-    foreignKey: 'keycapId',
+   as: 'keyboardKeycap',
+   foreignKey: 'keycapId',
 });
 
 Build.belongsTo(User, {
-    foreignKey: 'username',
-    targetKey: 'username',
+   foreignKey: 'username',
+   targetKey: 'username',
 });
 
 Token.belongsTo(User, { foreignKey: 'username' });
@@ -39,10 +39,10 @@ User.hasMany(Build, { foreignKey: 'username' });
 User.hasMany(Token, { foreignKey: 'username' });
 
 export default {
-    sequelize,
-    Sequelize,
-    User,
-    Part,
-    Token,
-    Build,
+   sequelize,
+   Sequelize,
+   User,
+   Part,
+   Token,
+   Build,
 };

@@ -4,7 +4,7 @@
 export default {
     async up(queryInterface, Sequelize) {
         await queryInterface.createTable("parts", {
-            partId: {
+            id: {
                 type: Sequelize.UUID,
                 primaryKey: true,
                 defaultValue: Sequelize.UUIDV4,

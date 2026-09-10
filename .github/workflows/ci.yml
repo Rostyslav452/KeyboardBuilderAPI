@@ -1,34 +1,65 @@
 name: CI pipeline
 
 on:
-    push:
-        branches: ['master', main]
-    pull_request:
-        branches: ['master', main]
+   push:
+      branches: ['master', 'main']
+   pull_request:
+      branches: ['master', 'main']
 
 jobs:
-    validate:
-        name: Lint, Format & Type Check
-        runs-on: ubuntu-latest
+   validate:
+      name: Lint, Format, Type Check & Test
+      runs-on: ubuntu-latest
 
-        steps:
-            - name: Checkout repository
-              uses: actions/checkout@v4
+      services:
+         mysql:
+            image: mysql:8.0
+            env:
+               MYSQL_ROOT_PASSWORD: rootpassword
+               MYSQL_DATABASE: keyboard_test_db
+            ports:
+               - 3307:3306
+            options: >-
+               --health-cmd="mysqladmin ping"
+               --health-interval=10s
+               --health-timeout=5s
+               --health-retries=3
 
-            - name: Setup Node.js
-              uses: actions/setup-node@v4
-              with:
-                  node-version: 22
-                  cache: 'npm'
+      steps:
+         - name: Checkout repository
+           uses: actions/checkout@v4
 
-            - name: Install dependency
-              run: npm ci
+         - name: Setup Node.js
+           uses: actions/setup-node@v4
+           with:
+              node-version: 22
+              cache: 'npm'
 
-            - name: Check code formatting (Prettier)
-              run: npm run format
+         - name: Install dependencies
+           run: npm ci
 
-            - name: Run ESLint
-              run: npm run lint
+         - name: Check code formatting (Prettier)
+           run: npm run format
 
-            - name: Run Type Check (tsc)
-              run: npx tsc --noEmit
+         - name: Run ESLint
+           run: npm run lint
+
+         - name: Run Type Check (tsc)
+           run: npx tsc --noEmit
+
+         - name: Run Integration Tests
+           run: npm run test:ci
+           env:
+              NODE_ENV: test
+              DB_HOST: 127.0.0.1
+              DB_PORT: 3307
+              DB_USERNAME: root
+              DB_PASSWORD: rootpassword
+              DB_NAME: keyboard_test_db
+              PORT: 3000
+              ALLOWED_ORIGINS: http://localhost:1231
+              SALT_ROUNDS: 12
+              LOG_LEVEL: silent
+              ACCESS_TOKEN_SECRET: 'super-secret-test-key'
+              REFRESH_TOKEN_SECRET: 'super-secret-refresh-test-key'
+              EXPIRES_IN_REFRESH_TOKEN: 7

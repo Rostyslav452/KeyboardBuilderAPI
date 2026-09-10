@@ -10,49 +10,49 @@ let server: Server | null = null;
 let isShuttingDown = false;
 
 const shutdown = async (signal: string) => {
-    if (isShuttingDown) return;
-    isShuttingDown = true;
+   if (isShuttingDown) return;
+   isShuttingDown = true;
 
-    serverLogger.info('Shutdown signal received');
+   serverLogger.info('Shutdown signal received');
 
-    try {
-        await new Promise<void>((resolve, reject) => {
-            if (!server) {
-                resolve();
-                return;
+   try {
+      await new Promise<void>((resolve, reject) => {
+         if (!server) {
+            resolve();
+            return;
+         }
+         server.close(err => {
+            if (err) {
+               reject(err);
+               return;
             }
-            server.close(err => {
-                if (err) {
-                    reject(err);
-                    return;
-                }
-                resolve();
-            });
-        });
-        await sequelize.close();
-        serverLogger.info('DB shut down successfully');
-        process.exit(0);
-    } catch (error) {
-        serverLogger.error({ signal, error }, 'Shutdown failed');
-        process.exit(1);
-    }
+            resolve();
+         });
+      });
+      await sequelize.close();
+      serverLogger.info('DB shut down successfully');
+      process.exit(0);
+   } catch (error) {
+      serverLogger.error({ signal, error }, 'Shutdown failed');
+      process.exit(1);
+   }
 };
 
 const start = async () => {
-    try {
-        await sequelize.authenticate();
-        serverLogger.info('Connection to DB successful');
+   try {
+      await sequelize.authenticate();
+      serverLogger.info('Connection to DB successful');
 
-        server = app.listen(PORT, () => {
-            serverLogger.info({
-                msg: `Server started successful on PORT ${PORT}`,
-                port: PORT,
-            });
-        });
-    } catch (error) {
-        serverLogger.fatal(error, 'Failed to connect:');
-        process.exit(1);
-    }
+      server = app.listen(PORT, () => {
+         serverLogger.info({
+            msg: `Server started successful on PORT ${PORT}`,
+            port: PORT,
+         });
+      });
+   } catch (error) {
+      serverLogger.fatal(error, 'Failed to connect:');
+      process.exit(1);
+   }
 };
 
 start();

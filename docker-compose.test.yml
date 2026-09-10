@@ -1,0 +1,16 @@
+services:
+   mysql_test:
+      image: mysql:8.0
+      container_name: keyboard_shop_test_db
+      environment:
+         - MYSQL_DATABASE=${DB_NAME}
+         - MYSQL_ROOT_PASSWORD=${DB_PASSWORD}
+      ports:
+         - '${DB_PORT}:3306'
+      tmpfs:
+         - /var/lib/mysql
+      healthcheck:
+         test: ['CMD-SHELL', 'mysqladmin ping -h localhost -uroot -p"$${MYSQL_ROOT_PASSWORD}"']
+         interval: 2s
+         timeout: 5s
+         retries: 30
