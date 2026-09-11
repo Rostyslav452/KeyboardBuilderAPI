@@ -32,14 +32,13 @@
    },
    "repository": {
       "type": "git",
-      "url": "git+https://github.com/Rostyslav452/mysql_api.git"
+      "url": "git+https://github.com/Rostyslav452/KeyboardBuilderAPI.git"
    },
-   "author": "Rostyslav <rooostik2016@gmail.com>",
-   "license": "ISC",
+   "author": "Rostyslav452 <rooostik2016@gmail.com>",
    "bugs": {
-      "url": "https://github.com/Rostyslav452/mysql_api/issues"
+      "url": "https://github.com/Rostyslav452/KeyboardBuilderAPI/issues"
    },
-   "homepage": "https://github.com/Rostyslav452/mysql_api#readme",
+   "homepage": "https://github.com/Rostyslav452/KeyboardBuilderAPI#readme",
    "dependencies": {
       "bcrypt": "^6.0.0",
       "cookie-parser": "^1.4.7",
